@@ -1,0 +1,24 @@
+.vehicleRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--border);
+  text-decoration: none;
+  color: inherit;
+}
+
+.vehicleRow:last-child {
+  border-bottom: none;
+}
+
+.vehiclePlate {
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.vehicleModel {
+  font-size: 13px;
+  color: var(--text-muted);
+}

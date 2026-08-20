@@ -1,0 +1,119 @@
+.card {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-card);
+  background: var(--surface);
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.pending {
+  border-color: var(--brand);
+  box-shadow: 0 0 0 1px var(--brand);
+}
+
+.draft {
+  padding: 20px;
+  color: var(--text-muted);
+  font-size: 14px;
+  text-align: center;
+  border: 1px dashed var(--border);
+  border-radius: var(--radius-card);
+}
+
+.title {
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.groupLabel {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.row {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 14px;
+  padding: 2px 0;
+}
+
+.rowDescription {
+  color: var(--text);
+}
+
+.rowAmount {
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+
+.subtotalRow {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+  font-weight: 600;
+  padding-top: 4px;
+  border-top: 1px solid var(--border);
+}
+
+.grandTotalRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding-top: 12px;
+  border-top: 2px solid var(--text);
+}
+
+.grandTotalLabel {
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.grandTotalAmount {
+  font-size: 22px;
+  font-weight: 700;
+}
+
+.approvalPrompt {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding-top: 4px;
+}
+
+.approvalText {
+  font-size: 14px;
+  color: var(--text-muted);
+  line-height: 1.5;
+}
+
+.actions {
+  display: flex;
+  gap: 12px;
+  flex-direction: column;
+}
+
+@media (min-width: 420px) {
+  .actions {
+    flex-direction: row;
+  }
+}
+
+.reasonBox {
+  font-size: 14px;
+  color: var(--text-muted);
+  background: var(--bg);
+  border-radius: var(--radius-control);
+  padding: 12px;
+}

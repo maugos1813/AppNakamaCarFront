@@ -1,0 +1,29 @@
+.page {
+  min-height: 100dvh;
+  display: flex;
+  justify-content: center;
+  background: var(--bg);
+}
+
+.container {
+  width: 100%;
+  max-width: var(--max-content-width);
+  padding: 20px 16px 48px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.topBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 4px;
+}
+
+.italyStripe {
+  height: 3px;
+  border-radius: 2px;
+  background: linear-gradient(to right, #16a34a 0%, #16a34a 33%, #ffffff 33%, #ffffff 66%, #b31e2e 66%, #b31e2e 100%);
+  opacity: 0.6;
+}
