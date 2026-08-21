@@ -31,7 +31,7 @@ export async function apiRequest<T>(path: string, { token, headers, ...init }: R
     return {
       ok: false,
       status: 0,
-      message: 'Impossibile contattare il server. Controlla la connessione.',
+      message: 'No se pudo contactar al servidor. Revisa tu conexión.',
       fieldErrors: [],
     };
   }
@@ -47,7 +47,7 @@ export async function apiRequest<T>(path: string, { token, headers, ...init }: R
     return {
       ok: false,
       status: res.status,
-      message: body?.message ?? 'Si è verificato un errore imprevisto.',
+      message: body?.message ?? 'Se produjo un error inesperado.',
       fieldErrors: body?.errors?.filter((e) => e.field) ?? [],
     };
   }
