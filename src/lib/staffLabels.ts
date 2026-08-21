@@ -17,6 +17,7 @@ import type {
   RepairHistoryEventType,
   RepairStageName,
   RepairStageStatus,
+  StaffRoleName,
   VehicleEntryStatus,
 } from './types';
 
@@ -156,4 +157,9 @@ export const paymentMethodLabels: Record<PaymentMethod, string> = {
   CARD: 'Tarjeta',
   BANK_TRANSFER: 'Transferencia bancaria',
   OTHER: 'Otro',
+};
+
+export const roleNameLabels: Record<StaffRoleName, string> = {
+  ADMIN: 'Administrador',
+  MECHANIC: 'Mecánico',
 };

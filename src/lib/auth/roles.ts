@@ -16,8 +16,12 @@ const NAV_BY_ROLE: Record<StaffRoleName, NavItemConfig[]> = {
     { label: 'Facturación', href: '/invoices' },
     { label: 'Finanzas', href: '/finance' },
     { label: 'Usuarios', href: '/users' },
+    { label: 'Mi perfil', href: '/profile' },
   ],
-  MECHANIC: [{ label: 'Mis trabajos', href: '/jobs' }],
+  MECHANIC: [
+    { label: 'Mis trabajos', href: '/jobs' },
+    { label: 'Mi perfil', href: '/profile' },
+  ],
 };
 
 export function navItemsForRole(role: StaffRoleName): NavItemConfig[] {
@@ -40,6 +44,7 @@ const ROUTE_ACCESS: Record<string, StaffRoleName[]> = {
   '/finance': ['ADMIN'],
   '/users': ['ADMIN'],
   '/jobs': ['ADMIN', 'MECHANIC'],
+  '/profile': ['ADMIN', 'MECHANIC'],
 };
 
 export function allowedRolesForPath(pathname: string): StaffRoleName[] | undefined {
