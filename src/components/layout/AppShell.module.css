@@ -1,6 +1,9 @@
 .shell {
   min-height: 100dvh;
-  background: var(--bg);
+  /* Transparent on purpose — the dark-mode texture lives on body, sized to
+     the viewport. If this set its own opaque --bg, it would paint over it
+     and the image would never show. */
+  background: transparent;
 }
 
 .header {

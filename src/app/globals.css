@@ -1,5 +1,6 @@
 :root {
   --bg: #ffffff;
+  --bg-image: none;
   --surface: #ffffff;
   --border: #e5e5e5;
   --text: #1a1a1a;
@@ -20,6 +21,10 @@
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme='light']) {
     --bg: #141414;
+    /* A dark scrim sits in front of the texture (first layer = topmost) so
+       any content resting directly on body — not inside a --surface panel —
+       still reads clearly against it, instead of competing with it. */
+    --bg-image: linear-gradient(rgba(10, 10, 10, 0.62), rgba(10, 10, 10, 0.62)), url('/backgrounds/dark-texture.jpg');
     --surface: #1f1f1f;
     --border: #2e2e2e;
     --text: #f2f2f2;
@@ -36,6 +41,7 @@
 
 :root[data-theme='dark'] {
   --bg: #141414;
+  --bg-image: linear-gradient(rgba(10, 10, 10, 0.62), rgba(10, 10, 10, 0.62)), url('/backgrounds/dark-texture.jpg');
   --surface: #1f1f1f;
   --border: #2e2e2e;
   --text: #f2f2f2;
@@ -60,11 +66,22 @@ body {
 }
 
 body {
-  background: var(--bg);
+  /* Solid color first so cards/text never depend on the image loading —
+     the texture is a dark-mode-only accent layered on top, not the base.
+     Fixed + viewport-sized so it never stretches on a long, scrollable
+     page — every page wrapper (AppShell, TrackPageShell, login) leaves its
+     own background transparent specifically so this shows through. */
+  background-color: var(--bg);
+  background-image: var(--bg-image);
+  background-size: cover;
+  background-position: center top;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
   color: var(--text);
   font-family: var(--font-inter), -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   -webkit-font-smoothing: antialiased;
   overflow-x: hidden;
+  min-height: 100dvh;
 }
 
 h1,

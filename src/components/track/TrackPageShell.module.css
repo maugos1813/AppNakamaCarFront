@@ -2,7 +2,9 @@
   min-height: 100dvh;
   display: flex;
   justify-content: center;
-  background: var(--bg);
+  /* Transparent — the dark-mode texture lives on body (see globals.css) so
+     it covers the viewport without stretching on long pages. */
+  background: transparent;
 }
 
 .container {

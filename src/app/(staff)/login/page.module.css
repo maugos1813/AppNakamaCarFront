@@ -12,6 +12,13 @@
   display: flex;
   flex-direction: column;
   gap: 24px;
+  /* A solid panel, not just floating text — matters more now that dark mode
+     has a busy background texture behind it (see globals.css). */
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
+  padding: 32px 28px;
 }
 
 .header {
