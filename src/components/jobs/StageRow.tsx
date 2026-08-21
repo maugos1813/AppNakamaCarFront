@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/Button';
 import { StatusBadge } from '@/components/ui/StatusBadge';
 import { updateStage } from '@/lib/api/jobs';
+import { enqueueStageUpdate } from '@/lib/offline/queue';
 import { actionsFor, isStageGated } from '@/lib/jobBoard';
 import { stageLabels, stageStatusLabels } from '@/lib/staffLabels';
 import type { BadgeTone } from '@/components/ui/StatusBadge';
@@ -30,17 +31,37 @@ export function StageRow({
 }) {
   const [loading, setLoading] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [queued, setQueued] = useState(false);
 
   const actions = actionsFor(stage.status);
   const gatedNow = isStageGated(entry, stage);
 
+  async function queueOffline(targetStatus: RepairStageStatus) {
+    await enqueueStageUpdate({
+      stageId: stage.id,
+      targetStatus,
+      label: `${stageLabels[stage.stage]} — ${entry.vehicle.licensePlate}`,
+    });
+    setQueued(true);
+  }
+
   async function handleAction(targetStatus: RepairStageStatus) {
     setLoading(targetStatus);
     setError(null);
+    setQueued(false);
+
+    if (typeof navigator !== 'undefined' && !navigator.onLine) {
+      await queueOffline(targetStatus);
+      setLoading(null);
+      return;
+    }
+
     const result = await updateStage(token, stage.id, targetStatus);
     setLoading(null);
     if (result.ok) {
       onMutated();
+    } else if (result.status === 0) {
+      await queueOffline(targetStatus);
     } else {
       setError(result.message);
     }
@@ -52,6 +73,7 @@ export function StageRow({
         <span className={styles.name}>{stageLabels[stage.stage]}</span>
         {stage.assignedMechanic && <span className={styles.mechanic}>{stage.assignedMechanic.fullName}</span>}
         {error && <span className={styles.error}>{error}</span>}
+        {queued && <span className={styles.queuedHint}>Sin conexión — se sincronizará automáticamente.</span>}
       </div>
       <div className={styles.right}>
         <StatusBadge tone={toneByStatus[stage.status]} label={stageStatusLabels[stage.status]} />

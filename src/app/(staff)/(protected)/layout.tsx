@@ -6,9 +6,10 @@ import { useAuth } from '@/lib/auth/AuthContext';
 import { allowedRolesForPath, homeForRole, navItemsForRole } from '@/lib/auth/roles';
 import { AppShell } from '@/components/layout/AppShell';
 import { FullPageLoading } from '@/components/ui/FullPageLoading';
+import { OfflineQueueIndicator } from '@/components/ui/OfflineQueueIndicator';
 
 export default function ProtectedLayout({ children }: { children: React.ReactNode }) {
-  const { status, user, logout } = useAuth();
+  const { status, user, token, logout } = useAuth();
   const router = useRouter();
   const pathname = usePathname();
 
@@ -34,7 +35,12 @@ export default function ProtectedLayout({ children }: { children: React.ReactNod
   const navItems = navItemsForRole(user.role.name).map((item) => ({ ...item, active: pathname.startsWith(item.href) }));
 
   return (
-    <AppShell navItems={navItems} userName={user.fullName} onLogout={logout}>
+    <AppShell
+      navItems={navItems}
+      userName={user.fullName}
+      onLogout={logout}
+      offlineIndicator={<OfflineQueueIndicator token={token} />}
+    >
       {children}
     </AppShell>
   );

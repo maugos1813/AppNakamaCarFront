@@ -7,6 +7,7 @@ import { Select } from '@/components/ui/Select';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { PhotoGallery } from '@/components/track/PhotoGallery';
 import { listPhotos, uploadPhoto } from '@/lib/api/jobs';
+import { enqueuePhotoUpload } from '@/lib/offline/queue';
 import { photoCategoryLabels } from '@/lib/staffLabels';
 import type { PhotoCategory, StaffPhoto } from '@/lib/types';
 import styles from './PhotosSection.module.css';
@@ -23,6 +24,7 @@ export function PhotosSection({ token, entryId }: { token: string; entryId: stri
   const [caption, setCaption] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [queued, setQueued] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -36,13 +38,40 @@ export function PhotosSection({ token, entryId }: { token: string; entryId: stri
     if (!file) return;
     setSubmitting(true);
     setError(null);
+    setQueued(false);
+
+    function resetForm() {
+      setFile(null);
+      setCaption('');
+      if (inputRef.current) inputRef.current.value = '';
+    }
+
+    async function queueOffline() {
+      if (!file) return;
+      await enqueuePhotoUpload({
+        entryId,
+        file,
+        category,
+        caption: caption || undefined,
+        label: `Foto (${photoCategoryLabels[category]})`,
+      });
+      setQueued(true);
+      resetForm();
+    }
+
+    if (typeof navigator !== 'undefined' && !navigator.onLine) {
+      await queueOffline();
+      setSubmitting(false);
+      return;
+    }
+
     const result = await uploadPhoto(token, entryId, { file, category, caption: caption || undefined });
     setSubmitting(false);
     if (result.ok) {
       setPhotos((current) => [result.data, ...(current ?? [])]);
-      setFile(null);
-      setCaption('');
-      if (inputRef.current) inputRef.current.value = '';
+      resetForm();
+    } else if (result.status === 0) {
+      await queueOffline();
     } else {
       setError(result.message);
     }
@@ -86,6 +115,7 @@ export function PhotosSection({ token, entryId }: { token: string; entryId: stri
         </div>
 
         {error && <span className={styles.error}>{error}</span>}
+        {queued && <span className={styles.queuedHint}>Sin conexión — la foto se subirá cuando haya conexión.</span>}
 
         <div className={styles.formActions}>
           <Button type="submit" variant="primary" loading={submitting} disabled={!file}>

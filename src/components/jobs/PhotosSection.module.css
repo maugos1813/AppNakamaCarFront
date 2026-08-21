@@ -66,6 +66,11 @@
   color: var(--danger);
 }
 
+.queuedHint {
+  font-size: 13px;
+  color: var(--warning);
+}
+
 .formActions {
   display: flex;
   justify-content: flex-end;

@@ -13,10 +13,11 @@ interface AppShellProps {
   navItems: NavItem[];
   userName: string;
   onLogout?: () => void;
+  offlineIndicator?: React.ReactNode;
   children: React.ReactNode;
 }
 
-export function AppShell({ navItems, userName, onLogout, children }: AppShellProps) {
+export function AppShell({ navItems, userName, onLogout, offlineIndicator, children }: AppShellProps) {
   return (
     <div className={styles.shell}>
       <header className={styles.header}>
@@ -42,6 +43,7 @@ export function AppShell({ navItems, userName, onLogout, children }: AppShellPro
           ))}
         </nav>
       </header>
+      {offlineIndicator}
       <main className={styles.main}>{children}</main>
     </div>
   );
