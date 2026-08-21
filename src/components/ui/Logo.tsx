@@ -1,12 +1,11 @@
+import Image from 'next/image';
 import styles from './Logo.module.css';
 
 export function Logo() {
   return (
     <>
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src="/logo-light.svg" alt="NakamaCar" className={`${styles.logo} ${styles.light}`} />
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src="/logo-dark.svg" alt="NakamaCar" className={`${styles.logo} ${styles.dark}`} />
+      <Image src="/logo-light.png" alt="NakamaCar" width={420} height={235} className={`${styles.logo} ${styles.light}`} priority />
+      <Image src="/logo-dark.png" alt="NakamaCar" width={420} height={235} className={`${styles.logo} ${styles.dark}`} priority />
     </>
   );
 }

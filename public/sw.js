@@ -1,7 +1,7 @@
 // Minimal app-shell cache — installability + a graceful offline fallback.
 // No complex offline strategy on purpose (tracking data must always be fresh).
 const CACHE_NAME = 'nakamacar-shell-v1';
-const SHELL_ASSETS = ['/manifest.json', '/icons/icon.svg'];
+const SHELL_ASSETS = ['/manifest.json', '/icons/icon-192.png', '/icons/icon-512.png'];
 
 self.addEventListener('install', (event) => {
   event.waitUntil(caches.open(CACHE_NAME).then((cache) => cache.addAll(SHELL_ASSETS)));
