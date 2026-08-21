@@ -20,10 +20,11 @@ self.addEventListener('fetch', (event) => {
   if (request.method !== 'GET' || !request.url.startsWith(self.location.origin)) return;
   if (request.url.includes('/api/')) return;
 
-  event.respondWith(
-    caches.match(request).then((cached) => {
-      if (cached) return cached;
-      return fetch(request).catch(() => cached);
-    }),
-  );
+  // Cache-first for shell assets; everything else goes straight to the
+  // network. The previous version fell back to `cached` on a failed fetch
+  // even when nothing was cached, resolving to `undefined` — which the
+  // browser can't turn into a Response and throws "Failed to convert value
+  // to 'Response'". Uncached requests now just resolve/reject with the real
+  // fetch, which the Fetch API handles correctly either way.
+  event.respondWith(caches.match(request).then((cached) => cached ?? fetch(request)));
 });
