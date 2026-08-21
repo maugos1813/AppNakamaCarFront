@@ -27,8 +27,9 @@ export default function EntriesPage() {
   const searchParams = useSearchParams();
   const vehicleId = searchParams.get('vehicleId') ?? undefined;
   const clientId = searchParams.get('clientId') ?? undefined;
+  const statusParam = searchParams.get('status') as VehicleEntryStatus | null;
 
-  const [status, setStatus] = useState<VehicleEntryStatus | ''>('IN_PROGRESS');
+  const [status, setStatus] = useState<VehicleEntryStatus | ''>(statusParam ?? 'IN_PROGRESS');
   const [page, setPage] = useState(1);
   const [data, setData] = useState<Paginated<JobEntry> | null>(null);
   const [loading, setLoading] = useState(true);

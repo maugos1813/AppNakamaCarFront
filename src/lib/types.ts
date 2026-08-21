@@ -84,6 +84,12 @@ export interface TrackingSummary {
 
 export type StaffRoleName = 'ADMIN' | 'MECHANIC';
 
+export interface Role {
+  id: string;
+  name: StaffRoleName;
+  description: string | null;
+}
+
 export interface StaffUser {
   id: string;
   fullName: string;
@@ -336,6 +342,45 @@ export interface StaffInvoice {
 }
 
 export interface StaffInvoiceDetail extends StaffInvoice {
+  amountPaid: number;
+  amountDue: number;
+}
+
+export interface DashboardSummary {
+  entriesByStatus: Record<VehicleEntryStatus, number>;
+  activeEntries: number;
+  stagesInProgress: Record<RepairStageName, number>;
+  readyForPickup: number;
+  totalClients: number;
+  totalVehicles: number;
+}
+
+export interface DashboardActivityEvent {
+  id: string;
+  eventType: RepairHistoryEventType;
+  description: string;
+  createdAt: string;
+  performedBy: { id: string; fullName: string; email: string } | null;
+  vehicleEntry: { id: string; vehicle: Vehicle & { client: Client } };
+}
+
+export interface FinanceSummary {
+  period: { from: string; to: string };
+  totalInvoiced: number;
+  totalCollected: number;
+  outstandingBalance: number;
+  byStatus: { status: InvoiceStatus; count: number; totalAmount: number }[];
+  byPaymentMethod: { method: PaymentMethod; count: number; totalAmount: number }[];
+  revenueByMonth: { month: string; invoiced: number; collected: number }[];
+}
+
+export interface OverdueInvoice {
+  id: string;
+  invoiceNumber: string | null;
+  dueDate: string | null;
+  totalAmount: string;
+  status: InvoiceStatus;
+  client: Client;
   amountPaid: number;
   amountDue: number;
 }
