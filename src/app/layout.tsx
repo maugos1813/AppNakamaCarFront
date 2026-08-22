@@ -10,13 +10,9 @@ export const metadata: Metadata = {
   title: 'NakamaCar — Carrozzeria e Servizi Auto',
   description: 'Panel de gestión y portal de seguimiento de NakamaCar.',
   manifest: '/manifest.json',
-  icons: {
-    icon: [
-      { url: '/icons/icon-192.png', sizes: '192x192', type: 'image/png' },
-      { url: '/icons/icon-512.png', sizes: '512x512', type: 'image/png' },
-    ],
-    apple: '/icons/icon-192.png',
-  },
+  // The favicon itself needs light/dark variants (a red mark barely reads on
+  // a red background) — Next's typed `icons` field has no `media` option, so
+  // these are hand-written <link> tags below instead, not this field.
 };
 
 export const viewport: Viewport = {
@@ -47,6 +43,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <Script id="theme-init" strategy="beforeInteractive">
           {themeInitScript}
         </Script>
+        {/* Followed by the browser/OS color scheme, not the in-app toggle —
+            favicons render in browser chrome, outside the page's reach. */}
+        <link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192.png" media="(prefers-color-scheme: light)" />
+        <link rel="icon" type="image/png" sizes="512x512" href="/icons/icon-512.png" media="(prefers-color-scheme: light)" />
+        <link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-dark-192.png" media="(prefers-color-scheme: dark)" />
+        <link rel="icon" type="image/png" sizes="512x512" href="/icons/icon-dark-512.png" media="(prefers-color-scheme: dark)" />
+        <link rel="apple-touch-icon" href="/icons/icon-192.png" />
       </head>
       <body>
         {children}
