@@ -1,6 +1,7 @@
 import { getInvoicePdfUrl } from '@/lib/api/client-portal';
 import { invoiceStatusLabels, invoiceStatusTones } from '@/lib/labels';
 import { StatusBadge } from '@/components/ui/StatusBadge';
+import { PaymentOptions } from './PaymentOptions';
 import type { TrackingInvoice } from '@/lib/types';
 import styles from './InvoiceSection.module.css';
 
@@ -23,6 +24,8 @@ export function InvoiceSection({ invoice, token }: { invoice: TrackingInvoice; t
         </svg>
         Scarica fattura (PDF)
       </a>
+
+      {invoice.canPay && <PaymentOptions token={token} invoice={invoice} />}
     </div>
   );
 }

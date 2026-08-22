@@ -1,0 +1,107 @@
+.wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding-top: 4px;
+  border-top: 1px solid var(--border);
+}
+
+.title {
+  font-size: 14px;
+  font-weight: 700;
+  padding-top: 12px;
+}
+
+.buttonRow {
+  display: flex;
+  gap: 12px;
+  flex-direction: column;
+}
+
+@media (min-width: 420px) {
+  .buttonRow {
+    flex-direction: row;
+  }
+}
+
+.successText {
+  font-size: 13px;
+  color: var(--success);
+  line-height: 1.5;
+}
+
+.panel {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 16px;
+  border-radius: var(--radius-control);
+  background: var(--bg);
+  border: 1px solid var(--border);
+}
+
+.bankRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+  font-size: 14px;
+}
+
+.bankLabel {
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+
+.bankValue {
+  font-weight: 700;
+  text-align: right;
+  word-break: break-word;
+}
+
+.helpText {
+  font-size: 13px;
+  color: var(--text-muted);
+  line-height: 1.5;
+  padding-top: 4px;
+  border-top: 1px solid var(--border);
+}
+
+.uploadForm {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.fileButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 48px;
+  padding: 0 14px;
+  border-radius: var(--radius-control);
+  border: 1px dashed var(--border);
+  background: var(--surface);
+  color: var(--text);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  text-align: center;
+}
+
+.fileButton:hover {
+  border-color: var(--text-muted);
+}
+
+.hiddenInput {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+}
+
+.errorText {
+  font-size: 13px;
+  color: var(--danger);
+}

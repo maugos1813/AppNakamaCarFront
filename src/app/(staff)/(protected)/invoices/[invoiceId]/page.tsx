@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { useAuth } from '@/lib/auth/AuthContext';
 import { cancelInvoice, downloadInvoicePdf, getInvoice, issueInvoice } from '@/lib/api/invoices';
 import { invoiceStatusLabels, invoiceStatusTones } from '@/lib/staffLabels';
-import { clientDisplayName, formatDate } from '@/lib/format';
+import { clientDisplayName, formatDate, formatDateTime } from '@/lib/format';
 import { BackLink } from '@/components/ui/BackLink';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
@@ -170,6 +170,31 @@ export default function InvoiceDetailPage({ params }: { params: Promise<{ invoic
         <Card>
           <PaymentSection token={token} invoice={invoice} onPaymentRecorded={load} />
         </Card>
+
+        {(invoice.officePaymentRequestedAt || invoice.receipts.length > 0) && (
+          <Card>
+            <span className={styles.sectionTitle}>Aviso del cliente</span>
+
+            {invoice.officePaymentRequestedAt && (
+              <div className={styles.officeNotice}>
+                El cliente indicó que pagará en persona en la oficina — avisado el{' '}
+                {formatDateTime(invoice.officePaymentRequestedAt, 'es-ES')}.
+              </div>
+            )}
+
+            {invoice.receipts.length > 0 && (
+              <div className={styles.receiptList}>
+                <span className={styles.receiptListLabel}>Comprobantes de pago recibidos</span>
+                {invoice.receipts.map((receipt) => (
+                  <a key={receipt.id} className={styles.receiptRow} href={receipt.url} target="_blank" rel="noreferrer">
+                    <span className={styles.receiptName}>{receipt.fileName}</span>
+                    <span className={styles.receiptDate}>{formatDateTime(receipt.createdAt, 'es-ES')}</span>
+                  </a>
+                ))}
+              </div>
+            )}
+          </Card>
+        )}
       </div>
 
       <ConfirmModal

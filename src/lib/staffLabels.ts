@@ -103,6 +103,8 @@ export const historyEventLabels: Record<RepairHistoryEventType, string> = {
   INVOICE_ISSUED: 'Factura emitida',
   ESTIMATE_APPROVED: 'Presupuesto aprobado',
   ESTIMATE_REJECTED: 'Presupuesto rechazado',
+  PAYMENT_RECEIPT_UPLOADED: 'Comprobante de pago recibido',
+  OFFICE_PAYMENT_REQUESTED: 'Cliente pagará en oficina',
 };
 
 export const fuelLevelLabels: Record<FuelLevel, string> = {

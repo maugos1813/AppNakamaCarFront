@@ -9,7 +9,12 @@ async function request<T>(token: string, path: string, init?: RequestInit): Prom
     res = await fetch(`${env.apiUrl}/client/${encodeURIComponent(token)}${path}`, {
       ...init,
       cache: 'no-store',
-      headers: { 'Content-Type': 'application/json', ...init?.headers },
+      headers: {
+        // A FormData body needs the browser to set its own multipart
+        // boundary — an explicit Content-Type here would break the upload.
+        ...(init?.body instanceof FormData ? {} : { 'Content-Type': 'application/json' }),
+        ...init?.headers,
+      },
     });
   } catch {
     return { ok: false, status: 0, message: 'Impossibile contattare il server. Controlla la connessione.' };
@@ -46,4 +51,14 @@ export function rejectEstimate(token: string, reason: string) {
 
 export function getInvoicePdfUrl(token: string) {
   return `${env.apiUrl}/client/${encodeURIComponent(token)}/invoice/pdf`;
+}
+
+export function uploadPaymentReceipt(token: string, file: File) {
+  const formData = new FormData();
+  formData.append('receipt', file);
+  return request<unknown>(token, '/invoice/receipt', { method: 'POST', body: formData });
+}
+
+export function requestOfficePayment(token: string) {
+  return request<unknown>(token, '/invoice/pay-at-office', { method: 'POST' });
 }

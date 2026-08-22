@@ -66,6 +66,9 @@ export interface TrackingInvoice {
   id: string;
   status: InvoiceStatus;
   invoiceNumber: string | null;
+  canPay: boolean;
+  officePaymentRequestedAt: string | null;
+  receiptsUploaded: number;
 }
 
 export interface TrackingSummary {
@@ -201,7 +204,9 @@ export type RepairHistoryEventType =
   | 'PHOTO_ADDED'
   | 'INVOICE_ISSUED'
   | 'ESTIMATE_APPROVED'
-  | 'ESTIMATE_REJECTED';
+  | 'ESTIMATE_REJECTED'
+  | 'PAYMENT_RECEIPT_UPLOADED'
+  | 'OFFICE_PAYMENT_REQUESTED';
 
 export interface HistoryEvent {
   id: string;
@@ -320,6 +325,15 @@ export interface StaffPayment {
   createdAt: string;
 }
 
+export interface StaffPaymentReceipt {
+  id: string;
+  url: string;
+  fileName: string;
+  mimeType: string;
+  sizeBytes: number;
+  createdAt: string;
+}
+
 export interface StaffInvoice {
   id: string;
   invoiceNumber: string | null;
@@ -331,12 +345,14 @@ export interface StaffInvoice {
   totalAmount: string;
   status: InvoiceStatus;
   notes: string | null;
+  officePaymentRequestedAt: string | null;
   vehicleEntryId: string;
   clientId: string;
   client: Client;
   vehicleEntry: { id: string; vehicle: Vehicle };
   items: StaffInvoiceItem[];
   payments: StaffPayment[];
+  receipts: StaffPaymentReceipt[];
   createdAt: string;
   updatedAt: string;
 }
