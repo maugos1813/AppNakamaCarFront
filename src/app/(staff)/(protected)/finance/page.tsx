@@ -6,6 +6,7 @@ import { useAuth } from '@/lib/auth/AuthContext';
 import { getFinanceSummary, getOverdueInvoices } from '@/lib/api/finance';
 import { clientDisplayName, formatCurrency, formatDate } from '@/lib/format';
 import { invoiceStatusLabels, paymentMethodLabels } from '@/lib/staffLabels';
+import { clientDetailPath, invoiceDetailPath } from '@/lib/routes';
 import { PageHeader } from '@/components/layout/PageHeader';
 import { Card } from '@/components/ui/Card';
 import { StatCard } from '@/components/ui/StatCard';
@@ -87,12 +88,12 @@ export default function FinancePage() {
     {
       key: 'number',
       header: 'Número',
-      render: (invoice) => <Link href={`/invoices/${invoice.id}`}>{invoice.invoiceNumber ?? 'Borrador'}</Link>,
+      render: (invoice) => <Link href={invoiceDetailPath(invoice.id)}>{invoice.invoiceNumber ?? 'Borrador'}</Link>,
     },
     {
       key: 'client',
       header: 'Cliente',
-      render: (invoice) => <Link href={`/clients/${invoice.client.id}`}>{clientDisplayName(invoice.client)}</Link>,
+      render: (invoice) => <Link href={clientDetailPath(invoice.client.id)}>{clientDisplayName(invoice.client)}</Link>,
     },
     { key: 'due', header: 'Vencimiento', render: (invoice) => formatDate(invoice.dueDate, 'es-ES') },
     { key: 'total', header: 'Total', align: 'right', render: (invoice) => formatCurrency(invoice.totalAmount) },

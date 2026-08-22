@@ -1,12 +1,13 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { Suspense, useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuth } from '@/lib/auth/AuthContext';
 import { listInvoices } from '@/lib/api/invoices';
 import { invoiceStatusLabels, invoiceStatusTones } from '@/lib/staffLabels';
 import { clientDisplayName, formatCurrency, formatDate } from '@/lib/format';
+import { clientDetailPath, invoiceDetailPath } from '@/lib/routes';
 import { PageHeader } from '@/components/layout/PageHeader';
 import { Select } from '@/components/ui/Select';
 import { StatusBadge } from '@/components/ui/StatusBadge';
@@ -21,6 +22,14 @@ const statusOptions = [
 ];
 
 export default function InvoicesPage() {
+  return (
+    <Suspense fallback={null}>
+      <InvoicesPageContent />
+    </Suspense>
+  );
+}
+
+function InvoicesPageContent() {
   const { token } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -45,13 +54,13 @@ export default function InvoicesPage() {
       key: 'number',
       header: 'Número',
       render: (invoice) => (
-        <Link href={`/invoices/${invoice.id}`}>{invoice.invoiceNumber ?? 'Borrador'}</Link>
+        <Link href={invoiceDetailPath(invoice.id)}>{invoice.invoiceNumber ?? 'Borrador'}</Link>
       ),
     },
     {
       key: 'client',
       header: 'Cliente',
-      render: (invoice) => <Link href={`/clients/${invoice.client.id}`}>{clientDisplayName(invoice.client)}</Link>,
+      render: (invoice) => <Link href={clientDetailPath(invoice.client.id)}>{clientDisplayName(invoice.client)}</Link>,
     },
     { key: 'vehicle', header: 'Vehículo', render: (invoice) => invoice.vehicleEntry.vehicle.licensePlate },
     {

@@ -7,6 +7,7 @@ import { listVehicles } from '@/lib/api/vehicles';
 import { clientDisplayName } from '@/lib/format';
 import { fuelTypeLabels } from '@/lib/staffLabels';
 import { useDebouncedValue } from '@/lib/useDebouncedValue';
+import { clientDetailPath, vehicleDetailPath } from '@/lib/routes';
 import { PageHeader } from '@/components/layout/PageHeader';
 import { LinkButton } from '@/components/ui/LinkButton';
 import { Input } from '@/components/ui/Input';
@@ -36,13 +37,13 @@ export default function VehiclesPage() {
     {
       key: 'plate',
       header: 'Matrícula',
-      render: (vehicle) => <Link href={`/vehicles/${vehicle.id}`}>{vehicle.licensePlate}</Link>,
+      render: (vehicle) => <Link href={vehicleDetailPath(vehicle.id)}>{vehicle.licensePlate}</Link>,
     },
     { key: 'model', header: 'Marca y modelo', render: (vehicle) => `${vehicle.make} ${vehicle.model}` },
     {
       key: 'client',
       header: 'Cliente',
-      render: (vehicle) => <Link href={`/clients/${vehicle.client.id}`}>{clientDisplayName(vehicle.client)}</Link>,
+      render: (vehicle) => <Link href={clientDetailPath(vehicle.client.id)}>{clientDisplayName(vehicle.client)}</Link>,
     },
     { key: 'fuel', header: 'Combustible', render: (vehicle) => (vehicle.fuelType ? fuelTypeLabels[vehicle.fuelType] : '—') },
   ];

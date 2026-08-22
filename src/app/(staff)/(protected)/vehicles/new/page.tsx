@@ -1,13 +1,23 @@
 'use client';
 
+import { Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuth } from '@/lib/auth/AuthContext';
 import { createVehicle, type VehicleInput } from '@/lib/api/vehicles';
 import { fieldErrorMap } from '@/lib/api/http';
+import { vehicleDetailPath } from '@/lib/routes';
 import { PageHeader } from '@/components/layout/PageHeader';
 import { VehicleForm } from '@/components/vehicles/VehicleForm';
 
 export default function NewVehiclePage() {
+  return (
+    <Suspense fallback={null}>
+      <NewVehiclePageContent />
+    </Suspense>
+  );
+}
+
+function NewVehiclePageContent() {
   const { token } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -16,7 +26,7 @@ export default function NewVehiclePage() {
   async function handleSubmit(input: VehicleInput) {
     const result = await createVehicle(token!, input);
     if (result.ok) {
-      router.push(`/vehicles/${result.data.id}`);
+      router.push(vehicleDetailPath(result.data.id));
       return { ok: true as const };
     }
     return { ok: false as const, message: result.message, fieldErrors: fieldErrorMap(result.fieldErrors) };

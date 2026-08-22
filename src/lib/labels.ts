@@ -1,4 +1,4 @@
-// Italian copy for the public Client Portal (/track/[token]) only.
+// Italian copy for the public Client Portal (/track?token=) only.
 // Staff-facing screens use ../lib/staffLabels.ts (Spanish) instead.
 import type { BadgeTone } from '@/components/ui/StatusBadge';
 import type {

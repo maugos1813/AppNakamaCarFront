@@ -1,12 +1,13 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { Suspense, useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuth } from '@/lib/auth/AuthContext';
 import { listEntries } from '@/lib/api/entries';
 import { entryStatusLabels, entryStatusTones, estimateStatusLabels } from '@/lib/staffLabels';
 import { clientDisplayName, formatDate } from '@/lib/format';
+import { clientDetailPath, entryDetailPath } from '@/lib/routes';
 import { PageHeader } from '@/components/layout/PageHeader';
 import { LinkButton } from '@/components/ui/LinkButton';
 import { Select } from '@/components/ui/Select';
@@ -22,6 +23,14 @@ const statusOptions = [
 ];
 
 export default function EntriesPage() {
+  return (
+    <Suspense fallback={null}>
+      <EntriesPageContent />
+    </Suspense>
+  );
+}
+
+function EntriesPageContent() {
   const { token } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -48,7 +57,7 @@ export default function EntriesPage() {
       key: 'vehicle',
       header: 'Vehículo',
       render: (entry) => (
-        <Link href={`/entries/${entry.id}`}>
+        <Link href={entryDetailPath(entry.id)}>
           {entry.vehicle.licensePlate} — {entry.vehicle.make} {entry.vehicle.model}
         </Link>
       ),
@@ -56,7 +65,7 @@ export default function EntriesPage() {
     {
       key: 'client',
       header: 'Cliente',
-      render: (entry) => <Link href={`/clients/${entry.vehicle.client.id}`}>{clientDisplayName(entry.vehicle.client)}</Link>,
+      render: (entry) => <Link href={clientDetailPath(entry.vehicle.client.id)}>{clientDisplayName(entry.vehicle.client)}</Link>,
     },
     { key: 'date', header: 'Ingreso', render: (entry) => formatDate(entry.entryDate, 'es-ES') },
     {

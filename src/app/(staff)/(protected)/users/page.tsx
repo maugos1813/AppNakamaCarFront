@@ -6,6 +6,7 @@ import { useAuth } from '@/lib/auth/AuthContext';
 import { listRoles, listUsers } from '@/lib/api/users';
 import { roleNameLabels } from '@/lib/staffLabels';
 import { formatDate } from '@/lib/format';
+import { userEditPath } from '@/lib/routes';
 import { PageHeader } from '@/components/layout/PageHeader';
 import { LinkButton } from '@/components/ui/LinkButton';
 import { Select } from '@/components/ui/Select';
@@ -57,7 +58,7 @@ export default function UsersPage() {
     {
       key: 'name',
       header: 'Nombre',
-      render: (user) => <Link href={`/users/${user.id}/edit`}>{user.fullName}</Link>,
+      render: (user) => <Link href={userEditPath(user.id)}>{user.fullName}</Link>,
     },
     { key: 'email', header: 'Email', render: (user) => user.email },
     { key: 'role', header: 'Rol', render: (user) => roleNameLabels[user.role.name] ?? user.role.name },

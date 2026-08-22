@@ -7,6 +7,7 @@ import { StatusBadge } from '@/components/ui/StatusBadge';
 import { updateStage } from '@/lib/api/jobs';
 import { isStageGated, nextStageAfter } from '@/lib/jobBoard';
 import { clientDisplayName } from '@/lib/format';
+import { jobDetailPath } from '@/lib/routes';
 import { estimateStatusLabels } from '@/lib/staffLabels';
 import type { JobEntry, RepairStageDetail } from '@/lib/types';
 import styles from './JobCard.module.css';
@@ -75,7 +76,7 @@ export function JobCard({ entry, stage, token, currentUserId, highlightMine, onM
 
   return (
     <div className={`${styles.card} ${isMine ? styles.highlighted : ''}`}>
-      <Link href={`/jobs/${entry.id}`} className={styles.top}>
+      <Link href={jobDetailPath(entry.id)} className={styles.top}>
         <span className={styles.plate}>{entry.vehicle.licensePlate}</span>
         <span className={styles.client}>{clientDisplayName(entry.vehicle.client)}</span>
       </Link>

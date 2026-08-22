@@ -1,5 +1,5 @@
 // Spanish copy for the internal staff panel only (login, dashboard, clients,
-// vehicles, jobs board, etc.). The public Client Portal (/track/[token])
+// vehicles, jobs board, etc.). The public Client Portal (/track?token=)
 // stays Italian — see ./labels.ts — since it's read by the shop's own
 // (Italian-speaking) customers, not the staff using this panel.
 import type { BadgeTone } from '@/components/ui/StatusBadge';

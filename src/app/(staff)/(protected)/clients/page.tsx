@@ -6,6 +6,7 @@ import { useAuth } from '@/lib/auth/AuthContext';
 import { listClients } from '@/lib/api/clients';
 import { clientDisplayName } from '@/lib/format';
 import { useDebouncedValue } from '@/lib/useDebouncedValue';
+import { clientDetailPath } from '@/lib/routes';
 import { PageHeader } from '@/components/layout/PageHeader';
 import { LinkButton } from '@/components/ui/LinkButton';
 import { Input } from '@/components/ui/Input';
@@ -35,7 +36,7 @@ export default function ClientsPage() {
     {
       key: 'name',
       header: 'Nombre',
-      render: (client) => <Link href={`/clients/${client.id}`}>{clientDisplayName(client)}</Link>,
+      render: (client) => <Link href={clientDetailPath(client.id)}>{clientDisplayName(client)}</Link>,
     },
     { key: 'phone', header: 'Teléfono', render: (client) => client.phone },
     { key: 'email', header: 'Email', render: (client) => client.email ?? '—' },

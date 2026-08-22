@@ -6,6 +6,7 @@ import { useAuth } from '@/lib/auth/AuthContext';
 import { getDashboardActivity, getDashboardSummary } from '@/lib/api/dashboard';
 import { entryStatusLabels, historyEventLabels, stageLabels } from '@/lib/staffLabels';
 import { clientDisplayName, formatDateTime } from '@/lib/format';
+import { clientDetailPath, entryDetailPath } from '@/lib/routes';
 import { PageHeader } from '@/components/layout/PageHeader';
 import { Card } from '@/components/ui/Card';
 import { StatCard } from '@/components/ui/StatCard';
@@ -106,9 +107,9 @@ export default function DashboardPage() {
                   </div>
                   <span className={styles.activityDescription}>{event.description}</span>
                   <span className={styles.activityMeta}>
-                    <Link href={`/entries/${event.vehicleEntry.id}`}>{event.vehicleEntry.vehicle.licensePlate}</Link>
+                    <Link href={entryDetailPath(event.vehicleEntry.id)}>{event.vehicleEntry.vehicle.licensePlate}</Link>
                     {' · '}
-                    <Link href={`/clients/${event.vehicleEntry.vehicle.client.id}`}>
+                    <Link href={clientDetailPath(event.vehicleEntry.vehicle.client.id)}>
                       {clientDisplayName(event.vehicleEntry.vehicle.client)}
                     </Link>
                     {event.performedBy && ` · ${event.performedBy.fullName}`}

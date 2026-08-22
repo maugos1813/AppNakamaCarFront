@@ -7,6 +7,7 @@ import { LinkButton } from '@/components/ui/LinkButton';
 import { StatusBadge } from '@/components/ui/StatusBadge';
 import { createInvoiceForEntry } from '@/lib/api/invoices';
 import { invoiceStatusLabels, invoiceStatusTones } from '@/lib/staffLabels';
+import { invoiceDetailPath } from '@/lib/routes';
 import type { EstimateStatus, JobEntry } from '@/lib/types';
 import styles from './InvoiceAction.module.css';
 
@@ -33,7 +34,7 @@ export function InvoiceAction({
     const result = await createInvoiceForEntry(token, entryId, {});
     setCreating(false);
     if (result.ok) {
-      router.push(`/invoices/${result.data.id}`);
+      router.push(invoiceDetailPath(result.data.id));
     } else {
       setError(result.message);
     }
@@ -46,7 +47,7 @@ export function InvoiceAction({
         {invoice ? (
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
             <StatusBadge tone={invoiceStatusTones[invoice.status]} label={invoiceStatusLabels[invoice.status]} />
-            <LinkButton href={`/invoices/${invoice.id}`} variant="secondary">
+            <LinkButton href={invoiceDetailPath(invoice.id)} variant="secondary">
               Ver factura
             </LinkButton>
           </div>
