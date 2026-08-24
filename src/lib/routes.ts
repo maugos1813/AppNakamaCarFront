@@ -34,3 +34,7 @@ export function jobDetailPath(id: string): string {
 export function userEditPath(id: string): string {
   return `/users/edit?id=${id}`;
 }
+
+export function resetPasswordPath(token: string): string {
+  return `/reset-password?token=${token}`;
+}

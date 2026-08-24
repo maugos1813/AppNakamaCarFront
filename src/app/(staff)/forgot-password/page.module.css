@@ -12,8 +12,6 @@
   display: flex;
   flex-direction: column;
   gap: 24px;
-  /* A solid panel, not just floating text — matters more now that dark mode
-     has a busy background texture behind it (see globals.css). */
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius-card);
@@ -51,12 +49,23 @@
   font-size: 13px;
 }
 
-.forgotLink {
+.successBanner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 14px;
+  border-radius: var(--radius-control);
+  background: color-mix(in srgb, var(--success) 12%, transparent);
+  color: var(--success);
+  font-size: 13px;
+}
+
+.backLink {
   align-self: center;
   font-size: 13px;
   color: var(--text-muted);
 }
 
-.forgotLink:hover {
+.backLink:hover {
   color: var(--brand);
 }

@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth/AuthContext';
 import { homeForRole } from '@/lib/auth/roles';
@@ -80,6 +81,10 @@ export default function LoginPage() {
             Iniciar sesión
           </Button>
         </form>
+
+        <Link href="/forgot-password" className={styles.forgotLink}>
+          ¿Olvidaste tu contraseña?
+        </Link>
       </div>
     </div>
   );
