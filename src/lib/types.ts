@@ -37,6 +37,7 @@ export interface LaborLineItem {
   hours: string;
   hourlyRate: string;
   total: string;
+  approvedAt: string | null;
 }
 
 export interface PartLineItem {
@@ -46,6 +47,7 @@ export interface PartLineItem {
   quantity: number;
   unitPrice: string;
   total: string;
+  approvedAt: string | null;
 }
 
 export interface OtherCostLineItem {
@@ -53,6 +55,7 @@ export interface OtherCostLineItem {
   description: string;
   amount: string;
   category: string | null;
+  approvedAt: string | null;
 }
 
 export interface Estimate {
@@ -172,6 +175,7 @@ export interface StaffLaborItem {
   hourlyRate: string;
   total: string;
   status: LaborItemStatus;
+  approvedAt: string | null;
 }
 
 export type PartStatus = 'PENDING_ORDER' | 'ORDERED' | 'RECEIVED' | 'INSTALLED';
@@ -186,6 +190,7 @@ export interface StaffPart {
   unitPrice: string;
   total: string;
   status: PartStatus;
+  approvedAt: string | null;
 }
 
 export interface StaffPhoto {
@@ -273,6 +278,7 @@ export interface StaffOtherCost {
   amount: string;
   category: string | null;
   createdAt: string;
+  approvedAt: string | null;
 }
 
 export interface EntryEstimate {

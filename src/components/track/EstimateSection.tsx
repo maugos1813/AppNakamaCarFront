@@ -6,7 +6,7 @@ import { formatCurrency, formatDate } from '@/lib/format';
 import { Button } from '@/components/ui/Button';
 import { ConfirmModal } from '@/components/ui/ConfirmModal';
 import { StatusBadge } from '@/components/ui/StatusBadge';
-import type { Estimate, EstimateStatus } from '@/lib/types';
+import type { Estimate, EstimateStatus, LaborLineItem, OtherCostLineItem, PartLineItem } from '@/lib/types';
 import styles from './EstimateSection.module.css';
 import modalStyles from '@/components/ui/ConfirmModal.module.css';
 
@@ -16,6 +16,10 @@ interface EstimateSectionProps {
   estimateStatus: EstimateStatus;
   estimateRespondedAt: string | null;
   estimateRejectionReason: string | null;
+}
+
+function splitByApproval<T extends { approvedAt: string | null }>(items: T[]) {
+  return { approved: items.filter((i) => i.approvedAt), pending: items.filter((i) => !i.approvedAt) };
 }
 
 export function EstimateSection({
@@ -33,6 +37,21 @@ export function EstimateSection({
   if (estimateStatus === 'DRAFT') {
     return <div className={styles.draft}>Preventivo in preparazione. Ti avviseremo quando sarà pronto.</div>;
   }
+
+  const labor = splitByApproval(estimate.labor.items);
+  const parts = splitByApproval(estimate.parts.items);
+  const otherCosts = splitByApproval(estimate.otherCosts.items);
+
+  const pendingTotal =
+    labor.pending.reduce((sum, i) => sum + Number(i.total), 0) +
+    parts.pending.reduce((sum, i) => sum + Number(i.total), 0) +
+    otherCosts.pending.reduce((sum, i) => sum + Number(i.amount), 0);
+
+  // A mix of already-approved and newly-pending items means this is a
+  // follow-up round (an additional cost added after the client already
+  // approved once) — the approval prompt and confirm modal below should
+  // talk about that new amount, not silently re-ask for the whole total.
+  const isAdditionalRound = labor.approved.length + parts.approved.length + otherCosts.approved.length > 0;
 
   async function handleApprove() {
     setSubmitting(true);
@@ -74,12 +93,13 @@ export function EstimateSection({
       {estimate.labor.items.length > 0 && (
         <div className={styles.group}>
           <span className={styles.groupLabel}>Manodopera</span>
-          {estimate.labor.items.map((item) => (
-            <div className={styles.row} key={item.id}>
-              <span className={styles.rowDescription}>{item.description}</span>
-              <span className={`${styles.rowAmount} tabular-nums`}>{formatCurrency(item.total)}</span>
-            </div>
-          ))}
+          <LaborRows items={isAdditionalRound ? labor.approved : estimate.labor.items} muted={isAdditionalRound} />
+          {isAdditionalRound && labor.pending.length > 0 && (
+            <>
+              <span className={styles.groupLabel}>Nuovo — da approvare</span>
+              <LaborRows items={labor.pending} />
+            </>
+          )}
           <div className={`${styles.subtotalRow} tabular-nums`}>
             <span>Subtotale</span>
             <span>{formatCurrency(estimate.labor.total)}</span>
@@ -90,15 +110,13 @@ export function EstimateSection({
       {estimate.parts.items.length > 0 && (
         <div className={styles.group}>
           <span className={styles.groupLabel}>Ricambi</span>
-          {estimate.parts.items.map((item) => (
-            <div className={styles.row} key={item.id}>
-              <span className={styles.rowDescription}>
-                {item.name}
-                {item.quantity > 1 ? ` × ${item.quantity}` : ''}
-              </span>
-              <span className={`${styles.rowAmount} tabular-nums`}>{formatCurrency(item.total)}</span>
-            </div>
-          ))}
+          <PartRows items={isAdditionalRound ? parts.approved : estimate.parts.items} muted={isAdditionalRound} />
+          {isAdditionalRound && parts.pending.length > 0 && (
+            <>
+              <span className={styles.groupLabel}>Nuovo — da approvare</span>
+              <PartRows items={parts.pending} />
+            </>
+          )}
           <div className={`${styles.subtotalRow} tabular-nums`}>
             <span>Subtotale</span>
             <span>{formatCurrency(estimate.parts.total)}</span>
@@ -109,12 +127,13 @@ export function EstimateSection({
       {estimate.otherCosts.items.length > 0 && (
         <div className={styles.group}>
           <span className={styles.groupLabel}>Altri costi</span>
-          {estimate.otherCosts.items.map((item) => (
-            <div className={styles.row} key={item.id}>
-              <span className={styles.rowDescription}>{item.description}</span>
-              <span className={`${styles.rowAmount} tabular-nums`}>{formatCurrency(item.amount)}</span>
-            </div>
-          ))}
+          <OtherCostRows items={isAdditionalRound ? otherCosts.approved : estimate.otherCosts.items} muted={isAdditionalRound} />
+          {isAdditionalRound && otherCosts.pending.length > 0 && (
+            <>
+              <span className={styles.groupLabel}>Nuovo — da approvare</span>
+              <OtherCostRows items={otherCosts.pending} />
+            </>
+          )}
           <div className={`${styles.subtotalRow} tabular-nums`}>
             <span>Subtotale</span>
             <span>{formatCurrency(estimate.otherCosts.total)}</span>
@@ -130,14 +149,16 @@ export function EstimateSection({
       {estimateStatus === 'PENDING_APPROVAL' && (
         <div className={styles.approvalPrompt}>
           <p className={styles.approvalText}>
-            È necessaria la tua approvazione prima di iniziare i lavori di riparazione.
+            {isAdditionalRound
+              ? `È stato aggiunto un costo aggiuntivo di ${formatCurrency(pendingTotal)}, da approvare separatamente rispetto a quanto già confermato.`
+              : 'È necessaria la tua approvazione prima di iniziare i lavori di riparazione.'}
           </p>
           <div className={styles.actions}>
             <Button variant="danger" fullWidth onClick={() => setModal('reject')}>
               Rifiuta
             </Button>
             <Button variant="primary" fullWidth onClick={() => setModal('approve')}>
-              Approva preventivo
+              {isAdditionalRound ? 'Approva costo aggiuntivo' : 'Approva preventivo'}
             </Button>
           </div>
         </div>
@@ -166,7 +187,11 @@ export function EstimateSection({
       <ConfirmModal
         open={modal === 'approve'}
         title="Confermi l’approvazione?"
-        description={`Stai per approvare il preventivo di ${formatCurrency(estimate.grandTotal)}. L’officina inizierà i lavori. Questa azione non può essere annullata da questa pagina.`}
+        description={
+          isAdditionalRound
+            ? `Stai per approvare il costo aggiuntivo di ${formatCurrency(pendingTotal)}. Questa azione non può essere annullata da questa pagina.`
+            : `Stai per approvare il preventivo di ${formatCurrency(estimate.grandTotal)}. L’officina inizierà i lavori. Questa azione non può essere annullata da questa pagina.`
+        }
         confirmLabel="Approva"
         variant="primary"
         loading={submitting}
@@ -195,5 +220,47 @@ export function EstimateSection({
         />
       </ConfirmModal>
     </div>
+  );
+}
+
+function LaborRows({ items, muted }: { items: LaborLineItem[]; muted?: boolean }) {
+  return (
+    <>
+      {items.map((item) => (
+        <div className={styles.row} key={item.id} style={muted ? { opacity: 0.6 } : undefined}>
+          <span className={styles.rowDescription}>{item.description}</span>
+          <span className={`${styles.rowAmount} tabular-nums`}>{formatCurrency(item.total)}</span>
+        </div>
+      ))}
+    </>
+  );
+}
+
+function PartRows({ items, muted }: { items: PartLineItem[]; muted?: boolean }) {
+  return (
+    <>
+      {items.map((item) => (
+        <div className={styles.row} key={item.id} style={muted ? { opacity: 0.6 } : undefined}>
+          <span className={styles.rowDescription}>
+            {item.name}
+            {item.quantity > 1 ? ` × ${item.quantity}` : ''}
+          </span>
+          <span className={`${styles.rowAmount} tabular-nums`}>{formatCurrency(item.total)}</span>
+        </div>
+      ))}
+    </>
+  );
+}
+
+function OtherCostRows({ items, muted }: { items: OtherCostLineItem[]; muted?: boolean }) {
+  return (
+    <>
+      {items.map((item) => (
+        <div className={styles.row} key={item.id} style={muted ? { opacity: 0.6 } : undefined}>
+          <span className={styles.rowDescription}>{item.description}</span>
+          <span className={`${styles.rowAmount} tabular-nums`}>{formatCurrency(item.amount)}</span>
+        </div>
+      ))}
+    </>
   );
 }

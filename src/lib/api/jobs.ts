@@ -46,6 +46,18 @@ export function listLaborItems(token: string, entryId: string) {
   return apiRequest<StaffLaborItem[]>(`/entries/${entryId}/labor`, { token });
 }
 
+export function updateLaborItem(
+  token: string,
+  id: string,
+  input: Partial<{ description: string; hours: number; hourlyRate: number }>,
+) {
+  return apiRequest<StaffLaborItem>(`/labor/${id}`, { token, method: 'PATCH', body: JSON.stringify(input) });
+}
+
+export function deleteLaborItem(token: string, id: string) {
+  return apiRequest<null>(`/labor/${id}`, { token, method: 'DELETE' });
+}
+
 export function createLaborItem(
   token: string,
   entryId: string,
@@ -56,6 +68,18 @@ export function createLaborItem(
 
 export function listParts(token: string, entryId: string) {
   return apiRequest<StaffPart[]>(`/entries/${entryId}/parts`, { token });
+}
+
+export function updatePart(
+  token: string,
+  id: string,
+  input: Partial<{ name: string; partNumber: string | null; quantity: number; unitCost: number; unitPrice: number }>,
+) {
+  return apiRequest<StaffPart>(`/parts/${id}`, { token, method: 'PATCH', body: JSON.stringify(input) });
+}
+
+export function deletePart(token: string, id: string) {
+  return apiRequest<null>(`/parts/${id}`, { token, method: 'DELETE' });
 }
 
 export function createPart(

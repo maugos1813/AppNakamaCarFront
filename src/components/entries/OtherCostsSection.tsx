@@ -4,7 +4,9 @@ import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Skeleton } from '@/components/ui/Skeleton';
-import { createOtherCost, listOtherCosts } from '@/lib/api/entries';
+import { StatusBadge } from '@/components/ui/StatusBadge';
+import { ConfirmModal } from '@/components/ui/ConfirmModal';
+import { createOtherCost, deleteOtherCost, listOtherCosts, updateOtherCost } from '@/lib/api/entries';
 import { formatCurrency } from '@/lib/format';
 import type { StaffOtherCost } from '@/lib/types';
 import styles from '@/components/jobs/ListSection.module.css';
@@ -25,6 +27,17 @@ export function OtherCostsSection({
   const [category, setCategory] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editDescription, setEditDescription] = useState('');
+  const [editAmount, setEditAmount] = useState('');
+  const [editCategory, setEditCategory] = useState('');
+  const [editSubmitting, setEditSubmitting] = useState(false);
+  const [editError, setEditError] = useState<string | null>(null);
+
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [deleting, setDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
 
   useEffect(() => {
     listOtherCosts(token, entryId).then((result) => {
@@ -51,6 +64,49 @@ export function OtherCostsSection({
       onMutated?.();
     } else {
       setError(result.message);
+    }
+  }
+
+  function startEdit(cost: StaffOtherCost) {
+    setEditingId(cost.id);
+    setEditDescription(cost.description);
+    setEditAmount(cost.amount);
+    setEditCategory(cost.category ?? '');
+    setEditError(null);
+  }
+
+  async function handleEditSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    if (!editingId) return;
+    setEditSubmitting(true);
+    setEditError(null);
+    const result = await updateOtherCost(token, editingId, {
+      description: editDescription,
+      amount: Number(editAmount),
+      category: editCategory || null,
+    });
+    setEditSubmitting(false);
+    if (result.ok) {
+      setCosts((current) => (current ?? []).map((cost) => (cost.id === editingId ? result.data : cost)));
+      setEditingId(null);
+      onMutated?.();
+    } else {
+      setEditError(result.message);
+    }
+  }
+
+  async function handleDelete() {
+    if (!deletingId) return;
+    setDeleting(true);
+    setDeleteError(null);
+    const result = await deleteOtherCost(token, deletingId);
+    setDeleting(false);
+    if (result.ok) {
+      setCosts((current) => (current ?? []).filter((cost) => cost.id !== deletingId));
+      setDeletingId(null);
+      onMutated?.();
+    } else {
+      setDeleteError(result.message);
     }
   }
 
@@ -94,15 +150,78 @@ export function OtherCostsSection({
       )}
 
       {costs !== null &&
-        costs.map((cost) => (
-          <div className={styles.row} key={cost.id}>
-            <div className={styles.rowMain}>
-              <span className={styles.rowTitle}>{cost.description}</span>
-              {cost.category && <span className={styles.rowDetail}>{cost.category}</span>}
+        costs.map((cost) =>
+          editingId === cost.id ? (
+            <form className={styles.form} onSubmit={handleEditSubmit} key={cost.id}>
+              <Input label="Descripción" value={editDescription} onChange={(e) => setEditDescription(e.target.value)} required />
+              <div className={styles.formRow}>
+                <Input
+                  label="Monto (€)"
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  value={editAmount}
+                  onChange={(e) => setEditAmount(e.target.value)}
+                  required
+                />
+                <Input label="Categoría (opcional)" value={editCategory} onChange={(e) => setEditCategory(e.target.value)} />
+              </div>
+              {editError && <span className={styles.error}>{editError}</span>}
+              <div className={styles.formActions}>
+                <Button type="button" variant="secondary" onClick={() => setEditingId(null)}>
+                  Cancelar
+                </Button>
+                <Button type="submit" variant="primary" loading={editSubmitting}>
+                  Guardar cambios
+                </Button>
+              </div>
+            </form>
+          ) : (
+            <div className={styles.row} key={cost.id}>
+              <div className={styles.rowMain}>
+                <div className={styles.rowTitleRow}>
+                  <span className={styles.rowTitle}>{cost.description}</span>
+                  {cost.approvedAt && <StatusBadge tone="success" label="Aprobado" />}
+                </div>
+                {cost.category && <span className={styles.rowDetail}>{cost.category}</span>}
+              </div>
+              <div className={styles.rowEnd}>
+                <span className={styles.rowAmount}>{formatCurrency(cost.amount)}</span>
+                <div className={styles.rowActions}>
+                  <button type="button" className={styles.rowAction} onClick={() => startEdit(cost)}>
+                    Editar
+                  </button>
+                  <button
+                    type="button"
+                    className={styles.rowActionDanger}
+                    onClick={() => {
+                      setDeletingId(cost.id);
+                      setDeleteError(null);
+                    }}
+                  >
+                    Eliminar
+                  </button>
+                </div>
+              </div>
             </div>
-            <span className={styles.rowAmount}>{formatCurrency(cost.amount)}</span>
-          </div>
-        ))}
+          ),
+        )}
+
+      <ConfirmModal
+        open={deletingId !== null}
+        title="¿Eliminar este costo?"
+        description="Esta acción no se puede deshacer."
+        confirmLabel="Eliminar"
+        cancelLabel="Cancelar"
+        variant="danger"
+        loading={deleting}
+        errorMessage={deleteError}
+        onConfirm={handleDelete}
+        onCancel={() => {
+          setDeletingId(null);
+          setDeleteError(null);
+        }}
+      />
     </div>
   );
 }

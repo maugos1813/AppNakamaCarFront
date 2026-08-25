@@ -49,3 +49,73 @@
   display: flex;
   gap: 12px;
 }
+
+.photoField {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.photoButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 44px;
+  padding: 0 16px;
+  width: fit-content;
+  border-radius: var(--radius-control);
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--text);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.photoButton:hover {
+  border-color: var(--text-muted);
+}
+
+.hiddenInput {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+}
+
+.photoList {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.photoListItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 12px;
+  border-radius: var(--radius-control);
+  background: var(--bg);
+  border: 1px solid var(--border);
+  font-size: 13px;
+}
+
+.photoName {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--text-muted);
+}
+
+.photoRemove {
+  flex-shrink: 0;
+  background: none;
+  border: none;
+  color: var(--danger);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0;
+}

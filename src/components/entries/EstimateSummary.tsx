@@ -43,6 +43,11 @@ export function EstimateSummary({
 
   if (!estimate) return <Skeleton height={60} radius={12} />;
 
+  const pendingTotal =
+    estimate.labor.items.filter((i) => !i.approvedAt).reduce((sum, i) => sum + Number(i.total), 0) +
+    estimate.parts.items.filter((i) => !i.approvedAt).reduce((sum, i) => sum + Number(i.total), 0) +
+    estimate.otherCosts.items.filter((i) => !i.approvedAt).reduce((sum, i) => sum + Number(i.amount), 0);
+
   return (
     <div className={styles.section}>
       <span className={styles.title}>Presupuesto</span>
@@ -65,13 +70,17 @@ export function EstimateSummary({
         <span className={`${styles.grandTotalAmount} tabular-nums`}>{formatCurrency(estimate.grandTotal)}</span>
       </div>
 
-      {estimateStatus === 'DRAFT' && (
+      {estimateStatus !== 'PENDING_APPROVAL' && (
         <div className={styles.actions}>
-          {estimate.grandTotal <= 0 ? (
-            <span className={styles.hint}>Agrega mano de obra, repuestos u otros costos antes de solicitar la aprobación.</span>
+          {pendingTotal <= 0 ? (
+            estimateStatus === 'DRAFT' && (
+              <span className={styles.hint}>Agrega mano de obra, repuestos u otros costos antes de solicitar la aprobación.</span>
+            )
           ) : (
             <Button variant="primary" onClick={handleRequestApproval} loading={requesting}>
-              Solicitar aprobación al cliente
+              {estimateStatus === 'DRAFT'
+                ? 'Solicitar aprobación al cliente'
+                : `Solicitar aprobación de costo adicional (${formatCurrency(pendingTotal)})`}
             </Button>
           )}
         </div>

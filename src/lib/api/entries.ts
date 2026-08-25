@@ -70,6 +70,18 @@ export function createOtherCost(
   return apiRequest<StaffOtherCost>(`/entries/${entryId}/costs`, { token, method: 'POST', body: JSON.stringify(input) });
 }
 
+export function updateOtherCost(
+  token: string,
+  id: string,
+  input: Partial<{ description: string; amount: number; category: string | null }>,
+) {
+  return apiRequest<StaffOtherCost>(`/costs/${id}`, { token, method: 'PATCH', body: JSON.stringify(input) });
+}
+
+export function deleteOtherCost(token: string, id: string) {
+  return apiRequest<null>(`/costs/${id}`, { token, method: 'DELETE' });
+}
+
 export function listNotifications(token: string, entryId: string) {
   return apiRequest<StaffNotification[]>(`/entries/${entryId}/notifications`, { token });
 }
