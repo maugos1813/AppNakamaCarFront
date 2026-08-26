@@ -1,0 +1,24 @@
+.wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.backLink {
+  align-self: flex-start;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.backLink:hover {
+  color: var(--brand);
+}
+
+.errorBanner {
+  padding: 12px 14px;
+  border-radius: var(--radius-control);
+  background: color-mix(in srgb, var(--danger) 12%, transparent);
+  color: var(--danger);
+  font-size: 13px;
+}

@@ -2,7 +2,14 @@
 
 import { Suspense, useEffect, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
-import { getTrackingSummary } from '@/lib/api/client-portal';
+import {
+  approveEstimate,
+  getInvoicePdfUrl,
+  getTrackingSummary,
+  rejectEstimate,
+  requestOfficePayment,
+  uploadPaymentReceipt,
+} from '@/lib/api/client-portal';
 import type { TrackingSummary } from '@/lib/types';
 import { TrackPageShell } from '@/components/track/TrackPageShell';
 import { TrackingError } from '@/components/track/TrackingError';
@@ -55,13 +62,21 @@ function TrackPageContent() {
       <StageStepper stages={summary.stages} />
       <PhotoGallery photos={summary.photos} />
       <EstimateSection
-        token={token}
         estimate={summary.estimate}
         estimateStatus={summary.estimateStatus}
         estimateRespondedAt={summary.estimateRespondedAt}
         estimateRejectionReason={summary.estimateRejectionReason}
+        onApprove={() => approveEstimate(token)}
+        onReject={(reason) => rejectEstimate(token, reason)}
       />
-      {summary.invoice && <InvoiceSection invoice={summary.invoice} token={token} />}
+      {summary.invoice && (
+        <InvoiceSection
+          invoice={summary.invoice}
+          pdfHref={getInvoicePdfUrl(token)}
+          onUploadReceipt={(file) => uploadPaymentReceipt(token, file)}
+          onRequestOfficePayment={() => requestOfficePayment(token)}
+        />
+      )}
       <ContactFooter />
     </TrackPageShell>
   );

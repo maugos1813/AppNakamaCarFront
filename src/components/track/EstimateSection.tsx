@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { approveEstimate, rejectEstimate } from '@/lib/api/client-portal';
+import type { ApiResult } from '@/lib/api/client-portal';
 import { formatCurrency, formatDate } from '@/lib/format';
 import { Button } from '@/components/ui/Button';
 import { ConfirmModal } from '@/components/ui/ConfirmModal';
@@ -11,11 +11,15 @@ import styles from './EstimateSection.module.css';
 import modalStyles from '@/components/ui/ConfirmModal.module.css';
 
 interface EstimateSectionProps {
-  token: string;
   estimate: Estimate;
   estimateStatus: EstimateStatus;
   estimateRespondedAt: string | null;
   estimateRejectionReason: string | null;
+  // Injected rather than imported directly, so this same UI serves both the
+  // single-link tracking portal (token-in-URL) and the premium fleet portal
+  // (Bearer session + entryId) without duplicating the component.
+  onApprove: () => Promise<ApiResult<unknown>>;
+  onReject: (reason: string) => Promise<ApiResult<unknown>>;
 }
 
 function splitByApproval<T extends { approvedAt: string | null }>(items: T[]) {
@@ -23,11 +27,12 @@ function splitByApproval<T extends { approvedAt: string | null }>(items: T[]) {
 }
 
 export function EstimateSection({
-  token,
   estimate,
   estimateStatus,
   estimateRespondedAt,
   estimateRejectionReason,
+  onApprove,
+  onReject,
 }: EstimateSectionProps) {
   const [modal, setModal] = useState<'approve' | 'reject' | null>(null);
   const [reason, setReason] = useState('');
@@ -58,7 +63,7 @@ export function EstimateSection({
   async function handleApprove() {
     setSubmitting(true);
     setError(null);
-    const result = await approveEstimate(token);
+    const result = await onApprove();
     setSubmitting(false);
     if (result.ok) {
       window.location.reload();
@@ -71,7 +76,7 @@ export function EstimateSection({
   async function handleReject() {
     setSubmitting(true);
     setError(null);
-    const result = await rejectEstimate(token, reason.trim());
+    const result = await onReject(reason.trim());
     setSubmitting(false);
     if (result.ok) {
       window.location.reload();

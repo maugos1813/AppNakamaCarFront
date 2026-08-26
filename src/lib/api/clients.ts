@@ -40,3 +40,7 @@ export function updateClient(token: string, id: string, input: Partial<ClientInp
 export function deleteClient(token: string, id: string) {
   return apiRequest<null>(`/clients/${id}`, { token, method: 'DELETE' });
 }
+
+export function enableClientPortal(token: string, id: string) {
+  return apiRequest<ClientWithVehicles>(`/clients/${id}/enable-portal`, { token, method: 'POST' });
+}

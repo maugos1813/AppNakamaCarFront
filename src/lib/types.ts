@@ -239,12 +239,22 @@ export interface Client {
   province: string | null;
   country: string;
   notes: string | null;
+  portalEnabled: boolean;
   createdAt: string;
   updatedAt: string;
 }
 
 export interface ClientWithVehicles extends Client {
   vehicles: Vehicle[];
+}
+
+export interface FleetVehicleEntry {
+  id: string;
+  vehicle: { licensePlate: string; make: string; model: string };
+  status: VehicleEntryStatus;
+  estimateStatus: EstimateStatus;
+  entryDate: string;
+  estimatedCompletionDate: string | null;
 }
 
 export type FuelType = 'PETROL' | 'DIESEL' | 'ELECTRIC' | 'HYBRID' | 'LPG' | 'CNG';

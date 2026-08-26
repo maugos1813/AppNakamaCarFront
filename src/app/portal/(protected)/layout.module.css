@@ -1,0 +1,60 @@
+.shell {
+  min-height: 100dvh;
+  background: transparent;
+}
+
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+}
+
+.headerInner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 12px 20px;
+  max-width: var(--max-content-width);
+  margin: 0 auto;
+}
+
+.logoLink {
+  display: flex;
+}
+
+.userRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.clientName {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.logoutButton {
+  height: 36px;
+  padding: 0 14px;
+  border-radius: var(--radius-control);
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.logoutButton:hover {
+  border-color: var(--text-muted);
+  color: var(--text);
+}
+
+.main {
+  max-width: var(--max-content-width);
+  margin: 0 auto;
+  padding: 24px 16px 48px;
+}

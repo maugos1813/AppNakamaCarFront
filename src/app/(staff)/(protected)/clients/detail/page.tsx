@@ -4,7 +4,7 @@ import { Suspense, useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuth } from '@/lib/auth/AuthContext';
-import { deleteClient, getClient } from '@/lib/api/clients';
+import { deleteClient, enableClientPortal, getClient } from '@/lib/api/clients';
 import { clientDisplayName } from '@/lib/format';
 import { fuelTypeLabels } from '@/lib/staffLabels';
 import { clientEditPath, vehicleDetailPath } from '@/lib/routes';
@@ -36,6 +36,9 @@ function ClientDetailPageContent() {
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [deleteError, setDeleteError] = useState<string | null>(null);
+  const [portalConfirmOpen, setPortalConfirmOpen] = useState(false);
+  const [enablingPortal, setEnablingPortal] = useState(false);
+  const [portalError, setPortalError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!token || !clientId) return;
@@ -57,6 +60,19 @@ function ClientDetailPageContent() {
       router.push('/clients');
     } else {
       setDeleteError(result.message);
+    }
+  }
+
+  async function handleEnablePortal() {
+    setEnablingPortal(true);
+    setPortalError(null);
+    const result = await enableClientPortal(token!, clientId);
+    setEnablingPortal(false);
+    if (result.ok) {
+      setClient(result.data);
+      setPortalConfirmOpen(false);
+    } else {
+      setPortalError(result.message);
     }
   }
 
@@ -128,6 +144,30 @@ function ClientDetailPageContent() {
 
         <Card>
           <div className={detailStyles.sectionHeader}>
+            <span className={detailStyles.sectionTitle}>Portal cliente premium</span>
+            {client.portalEnabled ? (
+              <StatusBadge tone="success" label="Activo" />
+            ) : (
+              <Button
+                variant="secondary"
+                onClick={() => setPortalConfirmOpen(true)}
+                disabled={!client.email}
+              >
+                Activar cuenta premium
+              </Button>
+            )}
+          </div>
+          <p style={{ fontSize: 13, color: 'var(--text-muted)', marginTop: 8 }}>
+            {client.portalEnabled
+              ? 'El cliente puede iniciar sesión en el portal y ver todos sus vehículos en un solo lugar.'
+              : client.email
+                ? 'Le llegará un email para activar su cuenta y elegir una contraseña.'
+                : 'Este cliente necesita un email cargado antes de poder activar el portal.'}
+          </p>
+        </Card>
+
+        <Card>
+          <div className={detailStyles.sectionHeader}>
             <span className={detailStyles.sectionTitle}>Vehículos</span>
             <LinkButton href={`/vehicles/new?clientId=${clientId}`} variant="secondary">
               + Agregar vehículo
@@ -165,6 +205,22 @@ function ClientDetailPageContent() {
           </div>
         </Card>
       </div>
+
+      <ConfirmModal
+        open={portalConfirmOpen}
+        title="¿Activar el portal premium para este cliente?"
+        description={`Se le enviará un email a ${client.email} para que active su cuenta y elija una contraseña.`}
+        confirmLabel="Activar"
+        cancelLabel="Cancelar"
+        variant="primary"
+        loading={enablingPortal}
+        errorMessage={portalError}
+        onConfirm={handleEnablePortal}
+        onCancel={() => {
+          setPortalConfirmOpen(false);
+          setPortalError(null);
+        }}
+      />
 
       <ConfirmModal
         open={confirmOpen}

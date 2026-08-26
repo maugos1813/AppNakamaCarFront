@@ -1,14 +1,20 @@
 'use client';
 
 import { useRef, useState } from 'react';
-import { requestOfficePayment, uploadPaymentReceipt } from '@/lib/api/client-portal';
+import type { ApiResult } from '@/lib/api/client-portal';
 import { env } from '@/lib/env';
 import { Button } from '@/components/ui/Button';
 import { ConfirmModal } from '@/components/ui/ConfirmModal';
 import type { TrackingInvoice } from '@/lib/types';
 import styles from './PaymentOptions.module.css';
 
-export function PaymentOptions({ token, invoice }: { token: string; invoice: TrackingInvoice }) {
+interface PaymentOptionsProps {
+  invoice: TrackingInvoice;
+  onUploadReceipt: (file: File) => Promise<ApiResult<unknown>>;
+  onRequestOfficePayment: () => Promise<ApiResult<unknown>>;
+}
+
+export function PaymentOptions({ invoice, onUploadReceipt, onRequestOfficePayment }: PaymentOptionsProps) {
   const [bonificoOpen, setBonificoOpen] = useState(false);
   const [file, setFile] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
@@ -28,7 +34,7 @@ export function PaymentOptions({ token, invoice }: { token: string; invoice: Tra
     if (!file) return;
     setUploading(true);
     setUploadError(null);
-    const result = await uploadPaymentReceipt(token, file);
+    const result = await onUploadReceipt(file);
     setUploading(false);
     if (result.ok) {
       setJustUploaded(true);
@@ -42,7 +48,7 @@ export function PaymentOptions({ token, invoice }: { token: string; invoice: Tra
   async function handleOfficeConfirm() {
     setOfficeSubmitting(true);
     setOfficeError(null);
-    const result = await requestOfficePayment(token);
+    const result = await onRequestOfficePayment();
     setOfficeSubmitting(false);
     if (result.ok) {
       window.location.reload();

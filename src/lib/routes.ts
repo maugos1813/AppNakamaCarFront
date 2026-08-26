@@ -38,3 +38,11 @@ export function userEditPath(id: string): string {
 export function resetPasswordPath(token: string): string {
   return `/reset-password?token=${token}`;
 }
+
+export function portalVehiclePath(id: string): string {
+  return `/portal/vehicle?id=${id}`;
+}
+
+export function portalSetPasswordPath(token: string): string {
+  return `/portal/set-password?token=${token}`;
+}
