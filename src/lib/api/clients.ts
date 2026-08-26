@@ -48,3 +48,7 @@ export function deleteClient(token: string, id: string) {
 export function enableClientPortal(token: string, id: string) {
   return apiRequest<ClientWithVehicles>(`/clients/${id}/enable-portal`, { token, method: 'POST' });
 }
+
+export function disableClientPortal(token: string, id: string) {
+  return apiRequest<ClientWithVehicles>(`/clients/${id}/disable-portal`, { token, method: 'POST' });
+}

@@ -4,7 +4,7 @@ import { Suspense, useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuth } from '@/lib/auth/AuthContext';
-import { deleteClient, enableClientPortal, getClient } from '@/lib/api/clients';
+import { deleteClient, disableClientPortal, enableClientPortal, getClient } from '@/lib/api/clients';
 import { clientDisplayName } from '@/lib/format';
 import { fuelTypeLabels } from '@/lib/staffLabels';
 import { clientEditPath, vehicleDetailPath } from '@/lib/routes';
@@ -12,6 +12,7 @@ import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { LinkButton } from '@/components/ui/LinkButton';
 import { StatusBadge } from '@/components/ui/StatusBadge';
+import { Switch } from '@/components/ui/Switch';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { ConfirmModal } from '@/components/ui/ConfirmModal';
@@ -36,8 +37,9 @@ function ClientDetailPageContent() {
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [deleteError, setDeleteError] = useState<string | null>(null);
-  const [portalConfirmOpen, setPortalConfirmOpen] = useState(false);
-  const [enablingPortal, setEnablingPortal] = useState(false);
+  // null = modal closed; true/false = confirming a switch to that state.
+  const [portalTarget, setPortalTarget] = useState<boolean | null>(null);
+  const [portalSubmitting, setPortalSubmitting] = useState(false);
   const [portalError, setPortalError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -63,14 +65,16 @@ function ClientDetailPageContent() {
     }
   }
 
-  async function handleEnablePortal() {
-    setEnablingPortal(true);
+  async function handlePortalToggleConfirm() {
+    setPortalSubmitting(true);
     setPortalError(null);
-    const result = await enableClientPortal(token!, clientId);
-    setEnablingPortal(false);
+    const result = portalTarget
+      ? await enableClientPortal(token!, clientId)
+      : await disableClientPortal(token!, clientId);
+    setPortalSubmitting(false);
     if (result.ok) {
       setClient(result.data);
-      setPortalConfirmOpen(false);
+      setPortalTarget(null);
     } else {
       setPortalError(result.message);
     }
@@ -145,23 +149,20 @@ function ClientDetailPageContent() {
         <Card>
           <div className={detailStyles.sectionHeader}>
             <span className={detailStyles.sectionTitle}>Portal cliente premium</span>
-            {client.portalEnabled ? (
-              <StatusBadge tone="success" label="Activo" />
-            ) : (
-              <Button
-                variant="secondary"
-                onClick={() => setPortalConfirmOpen(true)}
-                disabled={!client.email}
-              >
-                Activar cuenta premium
-              </Button>
-            )}
+          </div>
+          <div style={{ marginTop: 8 }}>
+            <Switch
+              checked={client.portalEnabled}
+              onChange={(checked) => setPortalTarget(checked)}
+              disabled={!client.portalEnabled && !client.email}
+              label={client.portalEnabled ? 'Activo' : 'Inactivo'}
+            />
           </div>
           <p style={{ fontSize: 13, color: 'var(--text-muted)', marginTop: 8 }}>
             {client.portalEnabled
               ? 'El cliente puede iniciar sesión en el portal y ver todos sus vehículos en un solo lugar.'
               : client.email
-                ? 'Le llegará un email para activar su cuenta y elegir una contraseña.'
+                ? 'Al activar, le llegará un email para elegir una contraseña.'
                 : 'Este cliente necesita un email cargado antes de poder activar el portal.'}
           </p>
         </Card>
@@ -207,17 +208,21 @@ function ClientDetailPageContent() {
       </div>
 
       <ConfirmModal
-        open={portalConfirmOpen}
-        title="¿Activar el portal premium para este cliente?"
-        description={`Se le enviará un email a ${client.email} para que active su cuenta y elija una contraseña.`}
-        confirmLabel="Activar"
+        open={portalTarget !== null}
+        title={portalTarget ? '¿Activar el portal premium para este cliente?' : '¿Desactivar el portal premium?'}
+        description={
+          portalTarget
+            ? `Se le enviará un email a ${client.email} para que elija una contraseña.`
+            : 'El cliente ya no podrá iniciar sesión en el portal. Podés reactivarlo en cualquier momento.'
+        }
+        confirmLabel={portalTarget ? 'Activar' : 'Desactivar'}
         cancelLabel="Cancelar"
-        variant="primary"
-        loading={enablingPortal}
+        variant={portalTarget ? 'primary' : 'danger'}
+        loading={portalSubmitting}
         errorMessage={portalError}
-        onConfirm={handleEnablePortal}
+        onConfirm={handlePortalToggleConfirm}
         onCancel={() => {
-          setPortalConfirmOpen(false);
+          setPortalTarget(null);
           setPortalError(null);
         }}
       />

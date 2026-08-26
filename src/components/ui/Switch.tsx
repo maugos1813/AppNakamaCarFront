@@ -6,15 +6,17 @@ interface SwitchProps {
   checked: boolean;
   onChange: (checked: boolean) => void;
   label: string;
+  disabled?: boolean;
 }
 
-export function Switch({ checked, onChange, label }: SwitchProps) {
+export function Switch({ checked, onChange, label, disabled = false }: SwitchProps) {
   return (
-    <label className={styles.label}>
+    <label className={`${styles.label} ${disabled ? styles.labelDisabled : ''}`}>
       <input
         type="checkbox"
         className={styles.input}
         checked={checked}
+        disabled={disabled}
         onChange={(e) => onChange(e.target.checked)}
       />
       <span className={`${styles.track} ${checked ? styles.trackOn : ''}`}>

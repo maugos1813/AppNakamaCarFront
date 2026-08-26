@@ -8,6 +8,11 @@
   color: var(--text);
 }
 
+.labelDisabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
 .track {
   position: relative;
   width: 40px;
