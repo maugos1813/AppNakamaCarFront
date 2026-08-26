@@ -63,6 +63,9 @@ export interface Estimate {
   parts: { items: PartLineItem[]; total: number };
   otherCosts: { items: OtherCostLineItem[]; total: number };
   grandTotal: number;
+  taxRate: number;
+  taxAmount: number;
+  totalWithTax: number;
 }
 
 export interface TrackingInvoice {
@@ -286,6 +289,9 @@ export interface EntryEstimate {
   parts: { items: StaffPart[]; total: number };
   otherCosts: { items: StaffOtherCost[]; total: number };
   grandTotal: number;
+  taxRate: number;
+  taxAmount: number;
+  totalWithTax: number;
 }
 
 export type NotificationType =
@@ -394,6 +400,7 @@ export interface FinanceSummary {
   byStatus: { status: InvoiceStatus; count: number; totalAmount: number }[];
   byPaymentMethod: { method: PaymentMethod; count: number; totalAmount: number }[];
   revenueByMonth: { month: string; invoiced: number; collected: number }[];
+  profit: { revenue: number; partsCost: number; estimatedProfit: number };
 }
 
 export interface OverdueInvoice {

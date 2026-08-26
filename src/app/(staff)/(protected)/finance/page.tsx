@@ -139,6 +139,29 @@ export default function FinancePage() {
         )}
 
         <Card>
+          <span className={detailStyles.sectionTitle}>Ingresos vs. ganancia estimada</span>
+          {summary === null ? (
+            <div className={styles.statGrid} style={{ marginTop: 12 }}>
+              {Array.from({ length: 3 }).map((_, i) => (
+                <Skeleton key={i} height={72} radius={12} />
+              ))}
+            </div>
+          ) : (
+            <>
+              <div className={styles.statGrid} style={{ marginTop: 12 }}>
+                <StatCard label="Ingresos (sin IVA)" value={formatCurrency(summary.profit.revenue)} />
+                <StatCard label="Costo de repuestos" value={formatCurrency(summary.profit.partsCost)} tone="warning" />
+                <StatCard label="Ganancia estimada" value={formatCurrency(summary.profit.estimatedProfit)} tone="success" />
+              </div>
+              <p className={styles.profitNote}>
+                Vista parcial: solo descuenta el costo de repuestos. La mano de obra y otros costos todavía se cuentan
+                como ganancia completa, porque el sistema no registra un costo interno para esos ítems.
+              </p>
+            </>
+          )}
+        </Card>
+
+        <Card>
           <span className={detailStyles.sectionTitle}>Ingresos últimos 12 meses</span>
           <div className={styles.legend} style={{ marginTop: 12 }}>
             <span className={styles.legendItem}>

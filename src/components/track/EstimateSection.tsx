@@ -42,10 +42,12 @@ export function EstimateSection({
   const parts = splitByApproval(estimate.parts.items);
   const otherCosts = splitByApproval(estimate.otherCosts.items);
 
-  const pendingTotal =
+  const pendingSubtotal =
     labor.pending.reduce((sum, i) => sum + Number(i.total), 0) +
     parts.pending.reduce((sum, i) => sum + Number(i.total), 0) +
     otherCosts.pending.reduce((sum, i) => sum + Number(i.amount), 0);
+  const pendingTaxAmount = pendingSubtotal * (estimate.taxRate / 100);
+  const pendingTotalWithTax = pendingSubtotal + pendingTaxAmount;
 
   // A mix of already-approved and newly-pending items means this is a
   // follow-up round (an additional cost added after the client already
@@ -141,16 +143,25 @@ export function EstimateSection({
         </div>
       )}
 
+      <div className={`${styles.subtotalRow} tabular-nums`}>
+        <span>Imponibile</span>
+        <span>{formatCurrency(estimate.grandTotal)}</span>
+      </div>
+      <div className={`${styles.subtotalRow} tabular-nums`}>
+        <span>IVA ({estimate.taxRate}%)</span>
+        <span>{formatCurrency(estimate.taxAmount)}</span>
+      </div>
+
       <div className={styles.grandTotalRow}>
-        <span className={styles.grandTotalLabel}>Totale</span>
-        <span className={`${styles.grandTotalAmount} tabular-nums`}>{formatCurrency(estimate.grandTotal)}</span>
+        <span className={styles.grandTotalLabel}>Totale (IVA inclusa)</span>
+        <span className={`${styles.grandTotalAmount} tabular-nums`}>{formatCurrency(estimate.totalWithTax)}</span>
       </div>
 
       {estimateStatus === 'PENDING_APPROVAL' && (
         <div className={styles.approvalPrompt}>
           <p className={styles.approvalText}>
             {isAdditionalRound
-              ? `È stato aggiunto un costo aggiuntivo di ${formatCurrency(pendingTotal)}, da approvare separatamente rispetto a quanto già confermato.`
+              ? `È stato aggiunto un costo aggiuntivo di ${formatCurrency(pendingTotalWithTax)} (IVA inclusa), da approvare separatamente rispetto a quanto già confermato.`
               : 'È necessaria la tua approvazione prima di iniziare i lavori di riparazione.'}
           </p>
           <div className={styles.actions}>
@@ -189,8 +200,8 @@ export function EstimateSection({
         title="Confermi l’approvazione?"
         description={
           isAdditionalRound
-            ? `Stai per approvare il costo aggiuntivo di ${formatCurrency(pendingTotal)}. Questa azione non può essere annullata da questa pagina.`
-            : `Stai per approvare il preventivo di ${formatCurrency(estimate.grandTotal)}. L’officina inizierà i lavori. Questa azione non può essere annullata da questa pagina.`
+            ? `Stai per approvare il costo aggiuntivo di ${formatCurrency(pendingTotalWithTax)} (IVA inclusa). Questa azione non può essere annullata da questa pagina.`
+            : `Stai per approvare il preventivo di ${formatCurrency(estimate.totalWithTax)} (IVA inclusa). L’officina inizierà i lavori. Questa azione non può essere annullata da questa pagina.`
         }
         confirmLabel="Approva"
         variant="primary"

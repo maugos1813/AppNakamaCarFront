@@ -3,7 +3,6 @@ import { env } from '../env';
 import type { InvoiceStatus, Paginated, PaymentMethod, StaffInvoice, StaffInvoiceDetail, StaffPayment } from '../types';
 
 export interface CreateInvoiceInput {
-  taxRate?: number;
   dueDate?: string;
   notes?: string;
 }

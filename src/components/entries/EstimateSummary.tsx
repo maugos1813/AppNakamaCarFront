@@ -43,10 +43,12 @@ export function EstimateSummary({
 
   if (!estimate) return <Skeleton height={60} radius={12} />;
 
-  const pendingTotal =
+  const pendingSubtotal =
     estimate.labor.items.filter((i) => !i.approvedAt).reduce((sum, i) => sum + Number(i.total), 0) +
     estimate.parts.items.filter((i) => !i.approvedAt).reduce((sum, i) => sum + Number(i.total), 0) +
     estimate.otherCosts.items.filter((i) => !i.approvedAt).reduce((sum, i) => sum + Number(i.amount), 0);
+  const pendingTaxAmount = pendingSubtotal * (estimate.taxRate / 100);
+  const pendingTotalWithTax = pendingSubtotal + pendingTaxAmount;
 
   return (
     <div className={styles.section}>
@@ -64,23 +66,31 @@ export function EstimateSummary({
         <span>Otros costos</span>
         <span className="tabular-nums">{formatCurrency(estimate.otherCosts.total)}</span>
       </div>
+      <div className={styles.row}>
+        <span>Subtotal</span>
+        <span className="tabular-nums">{formatCurrency(estimate.grandTotal)}</span>
+      </div>
+      <div className={styles.row}>
+        <span>IVA ({estimate.taxRate}%)</span>
+        <span className="tabular-nums">{formatCurrency(estimate.taxAmount)}</span>
+      </div>
 
       <div className={styles.grandTotalRow}>
-        <span className={styles.grandTotalLabel}>Total</span>
-        <span className={`${styles.grandTotalAmount} tabular-nums`}>{formatCurrency(estimate.grandTotal)}</span>
+        <span className={styles.grandTotalLabel}>Total (IVA incluido)</span>
+        <span className={`${styles.grandTotalAmount} tabular-nums`}>{formatCurrency(estimate.totalWithTax)}</span>
       </div>
 
       {estimateStatus !== 'PENDING_APPROVAL' && (
         <div className={styles.actions}>
-          {pendingTotal <= 0 ? (
+          {pendingSubtotal <= 0 ? (
             estimateStatus === 'DRAFT' && (
               <span className={styles.hint}>Agrega mano de obra, repuestos u otros costos antes de solicitar la aprobación.</span>
             )
           ) : (
             <Button variant="primary" onClick={handleRequestApproval} loading={requesting}>
               {estimateStatus === 'DRAFT'
-                ? 'Solicitar aprobación al cliente'
-                : `Solicitar aprobación de costo adicional (${formatCurrency(pendingTotal)})`}
+                ? `Solicitar aprobación al cliente (${formatCurrency(pendingTotalWithTax)})`
+                : `Solicitar aprobación de costo adicional (${formatCurrency(pendingTotalWithTax)})`}
             </Button>
           )}
         </div>
