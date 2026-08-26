@@ -17,9 +17,13 @@ export interface ClientInput {
   notes?: string;
 }
 
-export function listClients(token: string, params: { search?: string; page?: number; pageSize?: number }) {
+export function listClients(
+  token: string,
+  params: { search?: string; portalEnabled?: boolean; page?: number; pageSize?: number },
+) {
   const query = new URLSearchParams();
   if (params.search) query.set('search', params.search);
+  if (params.portalEnabled !== undefined) query.set('portalEnabled', String(params.portalEnabled));
   query.set('page', String(params.page ?? 1));
   query.set('pageSize', String(params.pageSize ?? 20));
   return apiRequest<Paginated<Client>>(`/clients?${query.toString()}`, { token });
