@@ -15,3 +15,25 @@
 .toggle:hover {
   border-color: var(--text-muted);
 }
+
+/* A menu-row look for contexts like a drawer footer, where an icon-only
+   circular button would read as unlabeled next to text nav items. */
+.toggleWithLabel {
+  width: 100%;
+  height: auto;
+  justify-content: flex-start;
+  gap: 12px;
+  padding: 12px;
+  border-radius: var(--radius-control);
+  border: none;
+  background: none;
+  color: var(--text-muted);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.toggleWithLabel:hover {
+  border-color: transparent;
+  color: var(--text);
+  background: var(--bg);
+}

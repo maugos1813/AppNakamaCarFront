@@ -13,11 +13,18 @@ function getSystemTheme(): Theme {
 interface ThemeToggleProps {
   activateLightLabel?: string;
   activateDarkLabel?: string;
+  // Renders the label as visible text next to the icon, for contexts like a
+  // menu row where an icon-only button reads as unlabeled. Icon-only
+  // (default) keeps the aria-label instead, for the compact header spot.
+  showLabel?: boolean;
+  className?: string;
 }
 
 export function ThemeToggle({
   activateLightLabel = 'Attiva tema chiaro',
   activateDarkLabel = 'Attiva tema scuro',
+  showLabel = false,
+  className,
 }: ThemeToggleProps = {}) {
   const [theme, setTheme] = useState<Theme | null>(null);
 
@@ -33,12 +40,14 @@ export function ThemeToggle({
     document.documentElement.setAttribute('data-theme', next);
   }
 
+  const label = theme === 'dark' ? activateLightLabel : activateDarkLabel;
+
   return (
     <button
       type="button"
       onClick={toggle}
-      className={styles.toggle}
-      aria-label={theme === 'dark' ? activateLightLabel : activateDarkLabel}
+      className={[styles.toggle, showLabel ? styles.toggleWithLabel : '', className].filter(Boolean).join(' ')}
+      aria-label={showLabel ? undefined : label}
     >
       {theme === 'dark' ? (
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
@@ -58,6 +67,7 @@ export function ThemeToggle({
           />
         </svg>
       )}
+      {showLabel && <span>{label}</span>}
     </button>
   );
 }

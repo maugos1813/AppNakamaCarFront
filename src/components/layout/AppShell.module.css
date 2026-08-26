@@ -22,15 +22,61 @@
   padding: 12px 20px;
 }
 
-.userRow {
+.headerLeft {
   display: flex;
   align-items: center;
   gap: 12px;
 }
 
+.menuButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-control);
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text);
+  cursor: pointer;
+}
+
+.menuButton:hover {
+  border-color: var(--text-muted);
+}
+
+@media (min-width: 860px) {
+  .menuButton {
+    display: none;
+  }
+}
+
+.userRow {
+  display: none;
+  align-items: center;
+  gap: 12px;
+}
+
+@media (min-width: 860px) {
+  .userRow {
+    display: flex;
+  }
+}
+
 .userName {
   font-size: 14px;
   font-weight: 600;
+}
+
+.userNameMobile {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+@media (min-width: 860px) {
+  .userNameMobile {
+    display: none;
+  }
 }
 
 .logoutButton {
@@ -51,10 +97,16 @@
 }
 
 .nav {
-  display: flex;
+  display: none;
   gap: 4px;
   padding: 0 16px;
   overflow-x: auto;
+}
+
+@media (min-width: 860px) {
+  .nav {
+    display: flex;
+  }
 }
 
 .navLink {
@@ -80,4 +132,123 @@
   max-width: 1080px;
   margin: 0 auto;
   padding: 24px 20px 48px;
+}
+
+.drawerBackdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 100;
+  animation: fadeIn 0.15s ease-out;
+}
+
+@media (min-width: 860px) {
+  .drawerBackdrop {
+    display: none;
+  }
+}
+
+.drawer {
+  display: flex;
+  flex-direction: column;
+  width: 260px;
+  max-width: 80vw;
+  height: 100%;
+  background: var(--surface);
+  box-shadow: var(--shadow-card);
+  animation: slideIn 0.18s ease-out;
+  overflow-y: auto;
+}
+
+.drawerFooter {
+  margin-top: auto;
+  display: flex;
+  flex-direction: column;
+  padding: 8px;
+  border-top: 1px solid var(--border);
+}
+
+.drawerFooterItem {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 12px;
+  border-radius: var(--radius-control);
+  border: none;
+  background: none;
+  color: var(--text-muted);
+  font-size: 14px;
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+}
+
+.drawerFooterItem:hover {
+  color: var(--text);
+  background: var(--bg);
+}
+
+.drawerHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px;
+  border-bottom: 1px solid var(--border);
+}
+
+.drawerClose {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-control);
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+}
+
+.drawerClose:hover {
+  color: var(--text);
+}
+
+.drawerLink {
+  padding: 14px 16px;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-decoration: none;
+  border-left: 3px solid transparent;
+}
+
+.drawerLink:hover {
+  color: var(--text);
+  background: var(--bg);
+}
+
+.drawerLinkActive {
+  color: var(--brand);
+  border-left-color: var(--brand);
+  background: var(--bg);
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(-100%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .drawerBackdrop,
+  .drawer {
+    animation: none;
+  }
 }
