@@ -18,6 +18,7 @@ import { EstimateSummary } from './EstimateSummary';
 import { OtherCostsSection } from './OtherCostsSection';
 import { NotificationsSection } from './NotificationsSection';
 import { EntryStatusControl } from './EntryStatusControl';
+import { DeleteEntryAction } from './DeleteEntryAction';
 import { InvoiceAction } from './InvoiceAction';
 import type { JobEntry } from '@/lib/types';
 import styles from './EntryDetail.module.css';
@@ -82,6 +83,7 @@ export function EntryDetail({ entryId }: { entryId: string }) {
         {isAdmin && (
           <EntryStatusControl token={token} entryId={entry.id} currentStatus={entry.status} onMutated={load} />
         )}
+        {isAdmin && <DeleteEntryAction token={token} entry={entry} />}
       </div>
 
       <div className={styles.sections}>

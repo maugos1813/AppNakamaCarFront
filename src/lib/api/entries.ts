@@ -42,6 +42,10 @@ export function updateEntry(token: string, entryId: string, input: UpdateEntryIn
   return apiRequest<JobEntry>(`/entries/${entryId}`, { token, method: 'PATCH', body: JSON.stringify(input) });
 }
 
+export function deleteEntry(token: string, entryId: string) {
+  return apiRequest<null>(`/entries/${entryId}`, { token, method: 'DELETE' });
+}
+
 export function changeEntryStatus(token: string, entryId: string, status: VehicleEntryStatus, notes?: string) {
   return apiRequest<JobEntry>(`/entries/${entryId}/status`, {
     token,
