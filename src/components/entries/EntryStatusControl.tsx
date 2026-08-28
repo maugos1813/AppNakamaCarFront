@@ -29,18 +29,23 @@ export function EntryStatusControl({
   token,
   entryId,
   currentStatus,
+  isAdmin,
   onMutated,
 }: {
   token: string;
   entryId: string;
   currentStatus: VehicleEntryStatus;
+  isAdmin: boolean;
   onMutated: () => void;
 }) {
   const [target, setTarget] = useState<VehicleEntryStatus | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const options = TRANSITIONS[currentStatus];
+  // A mechanic only gets to say "this is done" — cancelling the job,
+  // reopening it, or handing it over (which is tied to payment) stay
+  // admin-only decisions.
+  const options = isAdmin ? TRANSITIONS[currentStatus] : TRANSITIONS[currentStatus].filter((s) => s === 'COMPLETED');
   if (options.length === 0) return null;
 
   async function handleConfirm() {

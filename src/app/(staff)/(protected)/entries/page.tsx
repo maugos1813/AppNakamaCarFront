@@ -31,7 +31,8 @@ export default function EntriesPage() {
 }
 
 function EntriesPageContent() {
-  const { token } = useAuth();
+  const { token, user } = useAuth();
+  const isAdmin = user?.role.name === 'ADMIN';
   const router = useRouter();
   const searchParams = useSearchParams();
   const vehicleId = searchParams.get('vehicleId') ?? undefined;
@@ -73,11 +74,17 @@ function EntriesPageContent() {
       header: 'Estado',
       render: (entry) => <StatusBadge tone={entryStatusTones[entry.status]} label={entryStatusLabels[entry.status]} />,
     },
-    {
-      key: 'estimate',
-      header: 'Presupuesto',
-      render: (entry) => <StatusBadge tone="neutral" label={estimateStatusLabels[entry.estimateStatus]} />,
-    },
+    // Pricing/estimate status stays admin-only — a mechanic just needs to
+    // know which vehicle and what state the job is in, not what it's billed.
+    ...(isAdmin
+      ? [
+          {
+            key: 'estimate',
+            header: 'Presupuesto',
+            render: (entry: JobEntry) => <StatusBadge tone="neutral" label={estimateStatusLabels[entry.estimateStatus]} />,
+          },
+        ]
+      : []),
   ];
 
   return (

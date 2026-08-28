@@ -1,6 +1,9 @@
 :root {
   --bg: #ffffff;
-  --bg-image: none;
+  /* Light counterpart to the dark-mode texture below — same idea (a white
+     scrim in front so content resting directly on body, not inside a
+     --surface panel, stays crisp instead of competing with the texture). */
+  --bg-image: linear-gradient(rgba(255, 255, 255, 0.55), rgba(255, 255, 255, 0.55)), url('/backgrounds/light-texture.png');
   --surface: #ffffff;
   --border: #e5e5e5;
   --text: #1a1a1a;

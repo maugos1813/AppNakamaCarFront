@@ -13,12 +13,18 @@ import { Select } from '@/components/ui/Select';
 import { StatusBadge } from '@/components/ui/StatusBadge';
 import { Table, type TableColumn } from '@/components/ui/Table';
 import type { InvoiceStatus, Paginated, StaffInvoice } from '@/lib/types';
+import styles from './page.module.css';
 
 const PAGE_SIZE = 20;
 
-const statusOptions = [
-  { value: '', label: 'Todos los estados' },
-  ...(Object.entries(invoiceStatusLabels) as [InvoiceStatus, string][]).map(([value, label]) => ({ value, label })),
+// "Pagadas" is exactly status === PAID; every other status (including
+// drafts and cancelled) is bucketed together as "No pagadas" — a real
+// paid/unpaid split rather than one status filter at a time.
+const unpaidStatusOptions = [
+  { value: '', label: 'Todos los no pagados' },
+  ...(Object.entries(invoiceStatusLabels) as [InvoiceStatus, string][])
+    .filter(([value]) => value !== 'PAID')
+    .map(([value, label]) => ({ value, label })),
 ];
 
 export default function InvoicesPage() {
@@ -35,6 +41,7 @@ function InvoicesPageContent() {
   const searchParams = useSearchParams();
   const clientId = searchParams.get('clientId') ?? undefined;
 
+  const [paid, setPaid] = useState(false);
   const [status, setStatus] = useState<InvoiceStatus | ''>('');
   const [page, setPage] = useState(1);
   const [data, setData] = useState<Paginated<StaffInvoice> | null>(null);
@@ -43,11 +50,17 @@ function InvoicesPageContent() {
   useEffect(() => {
     if (!token) return;
     setLoading(true);
-    listInvoices(token, { status: status || undefined, clientId, page, pageSize: PAGE_SIZE }).then((result) => {
+    listInvoices(token, {
+      paid,
+      status: !paid && status ? status : undefined,
+      clientId,
+      page,
+      pageSize: PAGE_SIZE,
+    }).then((result) => {
       setLoading(false);
       if (result.ok) setData(result.data);
     });
-  }, [token, status, clientId, page]);
+  }, [token, paid, status, clientId, page]);
 
   const columns: TableColumn<StaffInvoice>[] = [
     {
@@ -89,17 +102,42 @@ function InvoicesPageContent() {
         </div>
       )}
 
-      <div style={{ maxWidth: 280, marginBottom: 20 }}>
-        <Select
-          label="Estado"
-          value={status}
-          onChange={(e) => {
-            setStatus(e.target.value as InvoiceStatus | '');
+      <div className={styles.tabs}>
+        <button
+          type="button"
+          className={`${styles.tab} ${!paid ? styles.tabActive : ''}`}
+          onClick={() => {
+            setPaid(false);
             setPage(1);
           }}
-          options={statusOptions}
-        />
+        >
+          No pagadas
+        </button>
+        <button
+          type="button"
+          className={`${styles.tab} ${paid ? styles.tabActive : ''}`}
+          onClick={() => {
+            setPaid(true);
+            setPage(1);
+          }}
+        >
+          Pagadas
+        </button>
       </div>
+
+      {!paid && (
+        <div style={{ maxWidth: 280, marginBottom: 20 }}>
+          <Select
+            label="Estado"
+            value={status}
+            onChange={(e) => {
+              setStatus(e.target.value as InvoiceStatus | '');
+              setPage(1);
+            }}
+            options={unpaidStatusOptions}
+          />
+        </div>
+      )}
 
       <Table
         columns={columns}

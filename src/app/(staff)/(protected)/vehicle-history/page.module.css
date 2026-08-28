@@ -1,0 +1,25 @@
+.filterRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.filterRow > * {
+  flex: 1 1 200px;
+  min-width: 160px;
+}
+
+.statGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+@media (min-width: 640px) {
+  .statGrid {
+    grid-template-columns: repeat(5, 1fr);
+  }
+}

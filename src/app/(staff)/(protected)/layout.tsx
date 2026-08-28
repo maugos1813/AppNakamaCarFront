@@ -5,6 +5,7 @@ import { useRouter, usePathname } from 'next/navigation';
 import { useAuth } from '@/lib/auth/AuthContext';
 import { allowedRolesForPath, homeForRole, navItemsForRole } from '@/lib/auth/roles';
 import { AppShell } from '@/components/layout/AppShell';
+import { NotificationBell } from '@/components/layout/NotificationBell';
 import { FullPageLoading } from '@/components/ui/FullPageLoading';
 import { OfflineQueueIndicator } from '@/components/ui/OfflineQueueIndicator';
 
@@ -32,7 +33,13 @@ export default function ProtectedLayout({ children }: { children: React.ReactNod
     return <FullPageLoading />;
   }
 
-  const navItems = navItemsForRole(user.role.name).map((item) => ({ ...item, active: pathname.startsWith(item.href) }));
+  // The /home launcher IS the navigation (every destination is a card
+  // there), so the drawer stays down to theme + logout on that one route —
+  // everywhere else shows the normal full nav.
+  const navItems =
+    pathname === '/home'
+      ? []
+      : navItemsForRole(user.role.name).map((item) => ({ ...item, active: pathname.startsWith(item.href) }));
 
   return (
     <AppShell
@@ -40,6 +47,7 @@ export default function ProtectedLayout({ children }: { children: React.ReactNod
       userName={user.fullName}
       onLogout={logout}
       offlineIndicator={<OfflineQueueIndicator token={token} />}
+      notificationBell={user.role.name === 'ADMIN' && token ? <NotificationBell token={token} /> : undefined}
     >
       {children}
     </AppShell>

@@ -26,6 +26,34 @@
   color: var(--text-muted);
 }
 
+.controlWrap {
+  position: relative;
+}
+
+.controlWithToggle {
+  padding-right: 44px;
+}
+
+.toggleButton {
+  position: absolute;
+  top: 0;
+  right: 0;
+  height: 48px;
+  width: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 0;
+}
+
+.toggleButton:hover {
+  color: var(--text);
+}
+
 .textarea {
   height: auto;
   min-height: 96px;

@@ -46,6 +46,41 @@ export default function DashboardPage() {
       <PageHeader title="Dashboard" />
 
       <div className={detailStyles.sections}>
+        <Card>
+          <span className={detailStyles.sectionTitle}>Pendientes de hoy</span>
+          {summary === null ? (
+            <div className={styles.statGrid} style={{ marginTop: 12 }}>
+              {Array.from({ length: 3 }).map((_, i) => (
+                <Skeleton key={i} height={72} radius={12} />
+              ))}
+            </div>
+          ) : (
+            <div className={styles.statGrid} style={{ marginTop: 12 }}>
+              <Link href="/work-requests">
+                <StatCard
+                  label="Richieste sin cotizar"
+                  value={summary.pendingToday.workRequestsPending}
+                  tone={summary.pendingToday.workRequestsPending > 0 ? 'warning' : 'neutral'}
+                />
+              </Link>
+              <Link href="/finished-vehicles">
+                <StatCard
+                  label={`Listos hace más de ${summary.pendingToday.staleReadyForPickupDays} días`}
+                  value={summary.pendingToday.staleReadyForPickup}
+                  tone={summary.pendingToday.staleReadyForPickup > 0 ? 'warning' : 'neutral'}
+                />
+              </Link>
+              <Link href="/invoices">
+                <StatCard
+                  label="Facturas vencidas"
+                  value={summary.pendingToday.overdueInvoices}
+                  tone={summary.pendingToday.overdueInvoices > 0 ? 'danger' : 'neutral'}
+                />
+              </Link>
+            </div>
+          )}
+        </Card>
+
         {summary === null ? (
           <div className={styles.statGrid}>
             {Array.from({ length: 4 }).map((_, i) => (
@@ -63,9 +98,7 @@ export default function DashboardPage() {
             <Link href="/clients">
               <StatCard label="Clientes" value={summary.totalClients} />
             </Link>
-            <Link href="/vehicles">
-              <StatCard label="Vehículos" value={summary.totalVehicles} />
-            </Link>
+            <StatCard label="Vehículos" value={summary.totalVehicles} />
           </div>
         )}
 

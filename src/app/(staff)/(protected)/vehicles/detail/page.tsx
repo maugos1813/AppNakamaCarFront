@@ -5,16 +5,20 @@ import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuth } from '@/lib/auth/AuthContext';
 import { deleteVehicle, getVehicle } from '@/lib/api/vehicles';
-import { clientDisplayName } from '@/lib/format';
-import { fuelTypeLabels } from '@/lib/staffLabels';
-import { clientDetailPath, vehicleEditPath } from '@/lib/routes';
+import { listEntries } from '@/lib/api/entries';
+import { clientDisplayName, formatDate } from '@/lib/format';
+import { entryStatusLabels, entryStatusTones, estimateStatusLabels, fuelTypeLabels } from '@/lib/staffLabels';
+import { clientDetailPath, entryDetailPath, vehicleEditPath } from '@/lib/routes';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { LinkButton } from '@/components/ui/LinkButton';
 import { Skeleton } from '@/components/ui/Skeleton';
+import { StatusBadge } from '@/components/ui/StatusBadge';
+import { EmptyState } from '@/components/ui/EmptyState';
 import { ConfirmModal } from '@/components/ui/ConfirmModal';
-import type { VehicleWithClient } from '@/lib/types';
+import type { JobEntry, VehicleWithClient } from '@/lib/types';
 import styles from '@/components/layout/DetailPage.module.css';
+import listStyles from './page.module.css';
 
 export default function VehicleDetailPage() {
   return (
@@ -33,6 +37,7 @@ function VehicleDetailPageContent() {
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [deleteError, setDeleteError] = useState<string | null>(null);
+  const [entries, setEntries] = useState<JobEntry[] | null>(null);
 
   useEffect(() => {
     if (!token || !vehicleId) return;
@@ -45,13 +50,20 @@ function VehicleDetailPageContent() {
     });
   }, [token, vehicleId]);
 
+  useEffect(() => {
+    if (!token || !vehicleId) return;
+    listEntries(token, { vehicleId, pageSize: 10 }).then((result) => {
+      if (result.ok) setEntries(result.data.items);
+    });
+  }, [token, vehicleId]);
+
   async function handleDelete() {
     setDeleting(true);
     setDeleteError(null);
     const result = await deleteVehicle(token!, vehicleId);
     setDeleting(false);
     if (result.ok) {
-      router.push('/vehicles');
+      router.push(clientDetailPath(vehicle!.client.id));
     } else {
       setDeleteError(result.message);
     }
@@ -127,12 +139,45 @@ function VehicleDetailPageContent() {
 
         <Card>
           <div className={styles.sectionHeader}>
-            <span className={styles.sectionTitle}>Ingresos</span>
+            <span className={styles.sectionTitle}>Historial</span>
             <LinkButton href={`/entries/new?vehicleId=${vehicleId}`} variant="secondary">
               + Nuevo ingreso
             </LinkButton>
           </div>
-          <Link href={`/entries?vehicleId=${vehicleId}`}>Ver historial de ingresos de este vehículo</Link>
+
+          {entries === null && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginTop: 12 }}>
+              {Array.from({ length: 3 }).map((_, i) => (
+                <Skeleton key={i} height={48} radius={8} />
+              ))}
+            </div>
+          )}
+
+          {entries !== null && entries.length === 0 && (
+            <EmptyState title="Sin ingresos registrados" description="Este vehículo todavía no pasó por el taller." />
+          )}
+
+          {entries !== null && entries.length > 0 && (
+            <div className={listStyles.historyList}>
+              {entries.map((entry) => (
+                <Link href={entryDetailPath(entry.id)} key={entry.id} className={listStyles.historyRow}>
+                  <div className={listStyles.historyMain}>
+                    <span className={listStyles.historyDate}>{formatDate(entry.entryDate, 'es-ES')}</span>
+                    <div className={listStyles.historyBadges}>
+                      <StatusBadge tone={entryStatusTones[entry.status]} label={entryStatusLabels[entry.status]} />
+                      <StatusBadge tone="neutral" label={estimateStatusLabels[entry.estimateStatus]} />
+                    </div>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          )}
+
+          {entries !== null && entries.length >= 10 && (
+            <Link href={`/entries?vehicleId=${vehicleId}`} className={listStyles.viewAllLink}>
+              Ver historial completo
+            </Link>
+          )}
         </Card>
       </div>
 

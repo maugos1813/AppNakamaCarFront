@@ -16,11 +16,12 @@ export interface CreatePaymentInput {
 
 export function listInvoices(
   token: string,
-  params: { clientId?: string; status?: InvoiceStatus; page?: number; pageSize?: number },
+  params: { clientId?: string; status?: InvoiceStatus; paid?: boolean; page?: number; pageSize?: number },
 ) {
   const query = new URLSearchParams();
   if (params.clientId) query.set('clientId', params.clientId);
   if (params.status) query.set('status', params.status);
+  if (params.paid !== undefined) query.set('paid', String(params.paid));
   query.set('page', String(params.page ?? 1));
   query.set('pageSize', String(params.pageSize ?? 20));
   return apiRequest<Paginated<StaffInvoice>>(`/invoices?${query.toString()}`, { token });

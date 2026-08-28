@@ -23,12 +23,24 @@ export type UpdateEntryInput = Partial<Omit<CreateEntryInput, 'vehicleId'>>;
 
 export function listEntries(
   token: string,
-  params: { status?: VehicleEntryStatus; vehicleId?: string; clientId?: string; page?: number; pageSize?: number },
+  params: {
+    status?: VehicleEntryStatus;
+    vehicleId?: string;
+    clientId?: string;
+    search?: string;
+    from?: string;
+    to?: string;
+    page?: number;
+    pageSize?: number;
+  },
 ) {
   const query = new URLSearchParams();
   if (params.status) query.set('status', params.status);
   if (params.vehicleId) query.set('vehicleId', params.vehicleId);
   if (params.clientId) query.set('clientId', params.clientId);
+  if (params.search) query.set('search', params.search);
+  if (params.from) query.set('from', params.from);
+  if (params.to) query.set('to', params.to);
   query.set('page', String(params.page ?? 1));
   query.set('pageSize', String(params.pageSize ?? 20));
   return apiRequest<Paginated<JobEntry>>(`/entries?${query.toString()}`, { token });

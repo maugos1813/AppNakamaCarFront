@@ -10,6 +10,7 @@ import { StatusBadge } from '@/components/ui/StatusBadge';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { StageRow } from '@/components/jobs/StageRow';
 import { DamagesSection } from '@/components/jobs/DamagesSection';
+import { WorkRequestsSection } from '@/components/jobs/WorkRequestsSection';
 import { LaborSection } from '@/components/jobs/LaborSection';
 import { PartsSection } from '@/components/jobs/PartsSection';
 import { PhotosSection } from '@/components/jobs/PhotosSection';
@@ -73,16 +74,20 @@ export function EntryDetail({ entryId }: { entryId: string }) {
         <span className={styles.client}>{clientDisplayName(entry.vehicle.client)}</span>
         <div className={styles.badges}>
           <StatusBadge tone={entryStatusTones[entry.status]} label={entryStatusLabels[entry.status]} />
-          <StatusBadge tone="neutral" label={estimateStatusLabels[entry.estimateStatus]} />
+          {isAdmin && <StatusBadge tone="neutral" label={estimateStatusLabels[entry.estimateStatus]} />}
         </div>
         <div className={styles.metaRow}>
           <span>Ingreso: {formatDate(entry.entryDate, 'es-ES')}</span>
           <span>Km: {entry.odometerReading.toLocaleString('es-ES')}</span>
           {entry.estimatedCompletionDate && <span>Entrega estimada: {formatDate(entry.estimatedCompletionDate, 'es-ES')}</span>}
         </div>
-        {isAdmin && (
-          <EntryStatusControl token={token} entryId={entry.id} currentStatus={entry.status} onMutated={load} />
-        )}
+        <EntryStatusControl
+          token={token}
+          entryId={entry.id}
+          currentStatus={entry.status}
+          isAdmin={isAdmin}
+          onMutated={load}
+        />
         {isAdmin && <DeleteEntryAction token={token} entry={entry} />}
       </div>
 
@@ -119,12 +124,20 @@ export function EntryDetail({ entryId }: { entryId: string }) {
         </Card>
 
         <Card>
-          <LaborSection token={token} entryId={entry.id} onMutated={isAdmin ? load : undefined} />
+          <WorkRequestsSection token={token} entryId={entry.id} isAdmin={isAdmin} />
         </Card>
 
-        <Card>
-          <PartsSection token={token} entryId={entry.id} onMutated={isAdmin ? load : undefined} />
-        </Card>
+        {isAdmin && (
+          <Card>
+            <LaborSection token={token} entryId={entry.id} onMutated={load} />
+          </Card>
+        )}
+
+        {isAdmin && (
+          <Card>
+            <PartsSection token={token} entryId={entry.id} onMutated={load} />
+          </Card>
+        )}
 
         {isAdmin && (
           <Card>
@@ -142,9 +155,11 @@ export function EntryDetail({ entryId }: { entryId: string }) {
           </Card>
         )}
 
-        <Card>
-          <HistorySection key={refreshKey} token={token} entryId={entry.id} />
-        </Card>
+        {isAdmin && (
+          <Card>
+            <HistorySection key={refreshKey} token={token} entryId={entry.id} />
+          </Card>
+        )}
       </div>
     </>
   );

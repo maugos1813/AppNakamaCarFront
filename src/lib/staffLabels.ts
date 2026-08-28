@@ -13,12 +13,14 @@ import type {
   NotificationType,
   PartStatus,
   PaymentMethod,
+  MaterialRequestStatus,
   PhotoCategory,
   RepairHistoryEventType,
   RepairStageName,
   RepairStageStatus,
   StaffRoleName,
   VehicleEntryStatus,
+  WorkRequestStatus,
 } from './types';
 
 export const entryStatusLabels: Record<VehicleEntryStatus, string> = {
@@ -152,6 +154,30 @@ export const invoiceStatusTones: Record<InvoiceStatus, BadgeTone> = {
   PARTIALLY_PAID: 'warning',
   OVERDUE: 'danger',
   CANCELLED: 'neutral',
+};
+
+export const workRequestStatusLabels: Record<WorkRequestStatus, string> = {
+  PENDING: 'Pendiente',
+  PRICED: 'Cotizada',
+  DISMISSED: 'Descartada',
+};
+
+export const workRequestStatusTones: Record<WorkRequestStatus, BadgeTone> = {
+  PENDING: 'warning',
+  PRICED: 'success',
+  DISMISSED: 'neutral',
+};
+
+export const materialRequestStatusLabels: Record<MaterialRequestStatus, string> = {
+  PENDING: 'Pendiente',
+  APPROVED: 'Aprobada',
+  REJECTED: 'Rechazada',
+};
+
+export const materialRequestStatusTones: Record<MaterialRequestStatus, BadgeTone> = {
+  PENDING: 'warning',
+  APPROVED: 'success',
+  REJECTED: 'danger',
 };
 
 export const paymentMethodLabels: Record<PaymentMethod, string> = {

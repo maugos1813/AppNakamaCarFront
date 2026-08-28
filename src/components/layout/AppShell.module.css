@@ -22,6 +22,12 @@
   padding: 12px 20px;
 }
 
+.headerRight {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
 .headerLeft {
   display: flex;
   align-items: center;
@@ -66,11 +72,23 @@
 .userName {
   font-size: 14px;
   font-weight: 600;
+  color: var(--text);
+  text-decoration: none;
+}
+
+.userName:hover {
+  color: var(--brand);
 }
 
 .userNameMobile {
   font-size: 14px;
   font-weight: 600;
+  color: var(--text);
+  text-decoration: none;
+}
+
+.userNameMobile:hover {
+  color: var(--brand);
 }
 
 @media (min-width: 860px) {

@@ -169,6 +169,55 @@ export interface StaffDamage {
   createdAt: string;
 }
 
+export type WorkRequestStatus = 'PENDING' | 'PRICED' | 'DISMISSED';
+
+// The shape returned by GET /entries/:entryId/work-requests — no relations,
+// since the caller is already looking at that one entry.
+export interface EntryWorkRequest {
+  id: string;
+  description: string;
+  status: WorkRequestStatus;
+  createdAt: string;
+}
+
+// The shape returned by GET /work-requests — the cross-entry "Richiesta"
+// queue, so it carries enough of the vehicle/client to be useful without a
+// follow-up request.
+export interface StaffWorkRequest {
+  id: string;
+  description: string;
+  status: WorkRequestStatus;
+  createdAt: string;
+  createdBy: { id: string; fullName: string; email: string } | null;
+  vehicleEntry: {
+    id: string;
+    vehicle: StaffVehicle;
+  };
+}
+
+// Decimal fields from Prisma are serialized as strings in JSON — never numbers.
+export interface InventoryItem {
+  id: string;
+  name: string;
+  unit: string;
+  quantity: string;
+  minQuantity: string | null;
+  notes: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export type MaterialRequestStatus = 'PENDING' | 'APPROVED' | 'REJECTED';
+
+export interface StaffMaterialRequest {
+  id: string;
+  description: string;
+  quantity: number;
+  status: MaterialRequestStatus;
+  createdAt: string;
+  createdBy: { id: string; fullName: string; email: string } | null;
+}
+
 export type LaborItemStatus = 'PENDING' | 'APPROVED' | 'COMPLETED';
 
 export interface StaffLaborItem {
@@ -328,6 +377,19 @@ export interface StaffNotification {
   createdAt: string;
 }
 
+// The logged-in staff member's own in-app feed (e.g. "new Richiesta") — a
+// different shape than StaffNotification above, which is the client-facing
+// send log reviewed from inside one entry.
+export interface MyNotification {
+  id: string;
+  type: NotificationType;
+  title: string;
+  message: string;
+  isRead: boolean;
+  relatedVehicleEntryId: string | null;
+  createdAt: string;
+}
+
 export type PaymentMethod = 'CASH' | 'CARD' | 'BANK_TRANSFER' | 'OTHER';
 
 export interface StaffInvoiceItem {
@@ -371,7 +433,7 @@ export interface StaffInvoice {
   vehicleEntryId: string;
   clientId: string;
   client: Client;
-  vehicleEntry: { id: string; vehicle: Vehicle };
+  vehicleEntry: { id: string; status: VehicleEntryStatus; vehicle: Vehicle };
   items: StaffInvoiceItem[];
   payments: StaffPayment[];
   receipts: StaffPaymentReceipt[];
@@ -391,6 +453,12 @@ export interface DashboardSummary {
   readyForPickup: number;
   totalClients: number;
   totalVehicles: number;
+  pendingToday: {
+    workRequestsPending: number;
+    staleReadyForPickup: number;
+    staleReadyForPickupDays: number;
+    overdueInvoices: number;
+  };
 }
 
 export interface DashboardActivityEvent {
