@@ -4,6 +4,7 @@ import type {
   FuelLevel,
   JobEntry,
   Paginated,
+  SignatureType,
   StaffNotification,
   StaffOtherCost,
   VehicleEntryStatus,
@@ -64,6 +65,14 @@ export function changeEntryStatus(token: string, entryId: string, status: Vehicl
     method: 'PATCH',
     body: JSON.stringify({ status, notes }),
   });
+}
+
+export function captureSignature(
+  token: string,
+  entryId: string,
+  input: { type: SignatureType; signerName: string; imageDataUrl: string },
+) {
+  return apiRequest<JobEntry>(`/entries/${entryId}/signature`, { token, method: 'PATCH', body: JSON.stringify(input) });
 }
 
 export function requestEstimateApproval(token: string, entryId: string) {

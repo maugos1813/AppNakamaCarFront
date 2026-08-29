@@ -30,12 +30,17 @@ export function EntryStatusControl({
   entryId,
   currentStatus,
   isAdmin,
+  stagesRemaining,
   onMutated,
 }: {
   token: string;
   entryId: string;
   currentStatus: VehicleEntryStatus;
   isAdmin: boolean;
+  // Stages not yet DONE/SKIPPED — mirrors the backend's own check on
+  // changeStatus, so the button reads as disabled instead of just erroring
+  // after the click.
+  stagesRemaining: number;
   onMutated: () => void;
 }) {
   const [target, setTarget] = useState<VehicleEntryStatus | null>(null);
@@ -64,11 +69,25 @@ export function EntryStatusControl({
 
   return (
     <div className={styles.actions}>
-      {options.map((status) => (
-        <Button key={status} variant={status === 'CANCELLED' ? 'danger' : 'secondary'} onClick={() => setTarget(status)}>
-          {ACTION_LABEL[status]}
-        </Button>
-      ))}
+      {options.map((status) => {
+        const blockedByStages = status === 'COMPLETED' && stagesRemaining > 0;
+        return (
+          <div className={styles.actionGroup} key={status}>
+            <Button
+              variant={status === 'CANCELLED' ? 'danger' : 'secondary'}
+              onClick={() => setTarget(status)}
+              disabled={blockedByStages}
+            >
+              {ACTION_LABEL[status]}
+            </Button>
+            {blockedByStages && (
+              <span className={styles.hint}>
+                Faltan {stagesRemaining} fase{stagesRemaining > 1 ? 's' : ''} por completar.
+              </span>
+            )}
+          </div>
+        );
+      })}
 
       <ConfirmModal
         open={target !== null}

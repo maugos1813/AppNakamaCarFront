@@ -20,6 +20,7 @@ const NAV_BY_ROLE: Record<StaffRoleName, NavItemConfig[]> = {
     { label: 'Materiales', href: '/materials' },
     { label: 'Vehículos Terminados', href: '/finished-vehicles' },
     { label: 'History Vehículos', href: '/vehicle-history' },
+    { label: 'Reportes', href: '/reports' },
   ],
   // A mechanic inspects the vehicle and is the one who knows what actually
   // needs fixing, so they get full access to entries (create/document
@@ -68,6 +69,7 @@ const ROUTE_ACCESS: Record<string, StaffRoleName[]> = {
   '/materials': ['ADMIN', 'MECHANIC'],
   '/finished-vehicles': ['ADMIN', 'MECHANIC'],
   '/vehicle-history': ['ADMIN', 'MECHANIC'],
+  '/reports': ['ADMIN'],
 };
 
 export function allowedRolesForPath(pathname: string): StaffRoleName[] | undefined {

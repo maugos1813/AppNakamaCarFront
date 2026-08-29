@@ -16,6 +16,7 @@ import { PartsSection } from '@/components/jobs/PartsSection';
 import { PhotosSection } from '@/components/jobs/PhotosSection';
 import { HistorySection } from '@/components/jobs/HistorySection';
 import { EstimateSummary } from './EstimateSummary';
+import { SignaturesSection } from './SignaturesSection';
 import { OtherCostsSection } from './OtherCostsSection';
 import { NotificationsSection } from './NotificationsSection';
 import { EntryStatusControl } from './EntryStatusControl';
@@ -86,6 +87,7 @@ export function EntryDetail({ entryId }: { entryId: string }) {
           entryId={entry.id}
           currentStatus={entry.status}
           isAdmin={isAdmin}
+          stagesRemaining={entry.stages.filter((stage) => stage.status !== 'DONE' && stage.status !== 'SKIPPED').length}
           onMutated={load}
         />
         {isAdmin && <DeleteEntryAction token={token} entry={entry} />}
@@ -147,6 +149,10 @@ export function EntryDetail({ entryId }: { entryId: string }) {
 
         <Card>
           <PhotosSection token={token} entryId={entry.id} />
+        </Card>
+
+        <Card>
+          <SignaturesSection token={token} entry={entry} isAdmin={isAdmin} onMutated={load} />
         </Card>
 
         {isAdmin && (

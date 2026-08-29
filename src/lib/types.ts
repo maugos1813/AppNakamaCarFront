@@ -157,7 +157,15 @@ export interface JobEntry {
   vehicle: StaffVehicle;
   stages: RepairStageDetail[];
   invoice: { id: string; invoiceNumber: string | null; status: InvoiceStatus } | null;
+  intakeSignatureUrl: string | null;
+  intakeSignedAt: string | null;
+  intakeSignedByName: string | null;
+  deliverySignatureUrl: string | null;
+  deliverySignedAt: string | null;
+  deliverySignedByName: string | null;
 }
+
+export type SignatureType = 'INTAKE' | 'DELIVERY';
 
 export type DamageSeverity = 'MINOR' | 'MODERATE' | 'SEVERE';
 
@@ -468,6 +476,18 @@ export interface DashboardActivityEvent {
   createdAt: string;
   performedBy: { id: string; fullName: string; email: string } | null;
   vehicleEntry: { id: string; vehicle: Vehicle & { client: Client } };
+}
+
+export interface MechanicProductivity {
+  periodMonths: number;
+  overall: { completedCount: number; avgRepairDays: number | null };
+  byMechanic: {
+    userId: string;
+    fullName: string;
+    completedCount: number;
+    completedThisMonth: number;
+    avgRepairDays: number | null;
+  }[];
 }
 
 export interface FinanceSummary {

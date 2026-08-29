@@ -6,6 +6,7 @@ import { useAuth } from '@/lib/auth/AuthContext';
 import { allowedRolesForPath, homeForRole, navItemsForRole } from '@/lib/auth/roles';
 import { AppShell } from '@/components/layout/AppShell';
 import { NotificationBell } from '@/components/layout/NotificationBell';
+import { PushNotificationsSetup } from '@/components/layout/PushNotificationsSetup';
 import { FullPageLoading } from '@/components/ui/FullPageLoading';
 import { OfflineQueueIndicator } from '@/components/ui/OfflineQueueIndicator';
 
@@ -42,14 +43,19 @@ export default function ProtectedLayout({ children }: { children: React.ReactNod
       : navItemsForRole(user.role.name).map((item) => ({ ...item, active: pathname.startsWith(item.href) }));
 
   return (
-    <AppShell
-      navItems={navItems}
-      userName={user.fullName}
-      onLogout={logout}
-      offlineIndicator={<OfflineQueueIndicator token={token} />}
-      notificationBell={user.role.name === 'ADMIN' && token ? <NotificationBell token={token} /> : undefined}
-    >
-      {children}
-    </AppShell>
+    <>
+      {/* Admin-only for now — matches the notification bell, since those
+          are the only events currently wired to push. */}
+      {user.role.name === 'ADMIN' && token && <PushNotificationsSetup token={token} />}
+      <AppShell
+        navItems={navItems}
+        userName={user.fullName}
+        onLogout={logout}
+        offlineIndicator={<OfflineQueueIndicator token={token} />}
+        notificationBell={user.role.name === 'ADMIN' && token ? <NotificationBell token={token} /> : undefined}
+      >
+        {children}
+      </AppShell>
+    </>
   );
 }

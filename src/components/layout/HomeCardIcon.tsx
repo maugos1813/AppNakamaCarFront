@@ -69,6 +69,18 @@ const ICONS: Record<string, React.ReactNode> = {
       <path stroke="currentColor" strokeWidth="2" strokeLinecap="round" d="m19.5 20.5-2.6-2.6" />
     </>
   ),
+  '/reports': (
+    <>
+      <path
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M3.5 18.5 9 12l3.5 3 7-8.5"
+      />
+      <path stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" d="M15.5 6.5h4v4" />
+    </>
+  ),
   '/finance': (
     <>
       <circle cx="12" cy="12" r="8.5" stroke="currentColor" strokeWidth="2" />

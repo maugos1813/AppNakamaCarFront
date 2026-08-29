@@ -3,3 +3,14 @@
   flex-wrap: wrap;
   gap: 10px;
 }
+
+.actionGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.hint {
+  font-size: 12px;
+  color: var(--text-muted);
+}

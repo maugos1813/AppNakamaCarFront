@@ -3,16 +3,15 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useAuth } from '@/lib/auth/AuthContext';
-import { getDashboardActivity, getDashboardSummary } from '@/lib/api/dashboard';
-import { entryStatusLabels, historyEventLabels, stageLabels } from '@/lib/staffLabels';
-import { clientDisplayName, formatDateTime } from '@/lib/format';
-import { clientDetailPath, entryDetailPath } from '@/lib/routes';
+import { getDashboardSummary } from '@/lib/api/dashboard';
+import { runReminders } from '@/lib/api/reminders';
+import { entryStatusLabels, entryStatusTones, stageLabels } from '@/lib/staffLabels';
 import { PageHeader } from '@/components/layout/PageHeader';
+import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { StatCard } from '@/components/ui/StatCard';
 import { Skeleton } from '@/components/ui/Skeleton';
-import { EmptyState } from '@/components/ui/EmptyState';
-import type { DashboardActivityEvent, DashboardSummary, RepairStageName } from '@/lib/types';
+import type { DashboardSummary, RepairStageName, VehicleEntryStatus } from '@/lib/types';
 import detailStyles from '@/components/layout/DetailPage.module.css';
 import styles from './page.module.css';
 
@@ -26,20 +25,52 @@ const STAGE_ORDER: RepairStageName[] = [
   'READY_FOR_DELIVERY',
 ];
 
+const ENTRY_STATUS_ORDER: VehicleEntryStatus[] = ['IN_PROGRESS', 'COMPLETED', 'DELIVERED', 'CANCELLED'];
+
+// Same tone vocabulary as everywhere else (StatusBadge, StatCard) mapped to
+// the actual CSS color each tone means, for the chart bars below.
+const TONE_COLOR: Record<string, string> = {
+  warning: 'var(--warning)',
+  success: 'var(--success)',
+  danger: 'var(--danger)',
+  neutral: 'var(--text-muted)',
+  brand: 'var(--brand)',
+};
+
 export default function DashboardPage() {
   const { token } = useAuth();
   const [summary, setSummary] = useState<DashboardSummary | null>(null);
-  const [activity, setActivity] = useState<DashboardActivityEvent[] | null>(null);
+  const [sendingReminders, setSendingReminders] = useState(false);
+  const [reminderResult, setReminderResult] = useState<string | null>(null);
 
   useEffect(() => {
     if (!token) return;
     getDashboardSummary(token).then((result) => {
       if (result.ok) setSummary(result.data);
     });
-    getDashboardActivity(token, 20).then((result) => {
-      if (result.ok) setActivity(result.data);
-    });
   }, [token]);
+
+  const maxStatusCount = summary
+    ? Math.max(1, ...ENTRY_STATUS_ORDER.map((status) => summary.entriesByStatus[status] ?? 0))
+    : 1;
+
+  async function handleSendReminders() {
+    if (!token) return;
+    setSendingReminders(true);
+    setReminderResult(null);
+    const result = await runReminders(token);
+    setSendingReminders(false);
+    if (result.ok) {
+      const total = result.data.pickupReminders + result.data.overdueInvoiceReminders;
+      setReminderResult(
+        total === 0
+          ? 'No había recordatorios pendientes de enviar.'
+          : `Se enviaron ${result.data.pickupReminders} recordatorio(s) de retiro y ${result.data.overdueInvoiceReminders} de factura vencida.`,
+      );
+    } else {
+      setReminderResult(result.message);
+    }
+  }
 
   return (
     <div>
@@ -47,7 +78,15 @@ export default function DashboardPage() {
 
       <div className={detailStyles.sections}>
         <Card>
-          <span className={detailStyles.sectionTitle}>Pendientes de hoy</span>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap' }}>
+            <span className={detailStyles.sectionTitle}>Pendientes de hoy</span>
+            <Button variant="secondary" onClick={handleSendReminders} loading={sendingReminders}>
+              Enviar recordatorios ahora
+            </Button>
+          </div>
+          {reminderResult && (
+            <p style={{ fontSize: 13, color: 'var(--text-muted)', marginTop: 8 }}>{reminderResult}</p>
+          )}
           {summary === null ? (
             <div className={styles.statGrid} style={{ marginTop: 12 }}>
               {Array.from({ length: 3 }).map((_, i) => (
@@ -117,38 +156,26 @@ export default function DashboardPage() {
         </Card>
 
         <Card>
-          <span className={detailStyles.sectionTitle}>Actividad reciente</span>
-          <div style={{ marginTop: 12 }}>
-            {activity === null && (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                {Array.from({ length: 4 }).map((_, i) => (
-                  <Skeleton key={i} height={48} radius={8} />
-                ))}
-              </div>
-            )}
-
-            {activity !== null && activity.length === 0 && (
-              <EmptyState title="Sin actividad reciente" description="Todavía no hay eventos registrados." />
-            )}
-
-            {activity !== null &&
-              activity.map((event) => (
-                <div className={styles.activityItem} key={event.id}>
-                  <div className={styles.activityTop}>
-                    <span className={styles.activityEventType}>{historyEventLabels[event.eventType]}</span>
-                    <span className={styles.activityDate}>{formatDateTime(event.createdAt, 'es-ES')}</span>
-                  </div>
-                  <span className={styles.activityDescription}>{event.description}</span>
-                  <span className={styles.activityMeta}>
-                    <Link href={entryDetailPath(event.vehicleEntry.id)}>{event.vehicleEntry.vehicle.licensePlate}</Link>
-                    {' · '}
-                    <Link href={clientDetailPath(event.vehicleEntry.vehicle.client.id)}>
-                      {clientDisplayName(event.vehicleEntry.vehicle.client)}
+          <span className={detailStyles.sectionTitle}>Ingresos por estado</span>
+          <div className={styles.statusChart} style={{ marginTop: 12 }}>
+            {summary === null
+              ? Array.from({ length: 4 }).map((_, i) => <Skeleton key={i} height={20} />)
+              : ENTRY_STATUS_ORDER.map((status) => {
+                  const count = summary.entriesByStatus[status] ?? 0;
+                  const color = TONE_COLOR[entryStatusTones[status]];
+                  return (
+                    <Link href={`/entries?status=${status}`} key={status} className={styles.statusChartRow}>
+                      <span className={styles.statusChartLabel}>{entryStatusLabels[status]}</span>
+                      <div className={styles.statusChartTrack}>
+                        <div
+                          className={styles.statusChartFill}
+                          style={{ width: `${(count / maxStatusCount) * 100}%`, background: color }}
+                        />
+                      </div>
+                      <span className={`${styles.statusChartValue} tabular-nums`}>{count}</span>
                     </Link>
-                    {event.performedBy && ` · ${event.performedBy.fullName}`}
-                  </span>
-                </div>
-              ))}
+                  );
+                })}
           </div>
         </Card>
       </div>
