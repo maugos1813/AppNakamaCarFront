@@ -1,7 +1,7 @@
 'use client';
 
 import { createContext, useCallback, useContext, useEffect, useState } from 'react';
-import { getMe, login as loginRequest } from '@/lib/api/auth';
+import { getMe, login as loginRequest, ssoLogin } from '@/lib/api/auth';
 import { clearStoredToken, getStoredToken, storeToken } from './session';
 import type { StaffUser } from '@/lib/types';
 
@@ -26,6 +26,31 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [token, setToken] = useState<string | null>(null);
 
   useEffect(() => {
+    // Llegó desde el portal de OneSystec con un ticket de un solo uso
+    // (?sso=...): lo cambiamos por una sesión real acá, sin pedir password.
+    const params = new URLSearchParams(window.location.search);
+    const ticket = params.get('sso');
+    if (ticket) {
+      ssoLogin(ticket)
+        .then((result) => {
+          if (result.ok) {
+            storeToken(result.data.accessToken);
+            setToken(result.data.accessToken);
+            setUser(result.data.user);
+            setStatus('authenticated');
+          } else {
+            clearStoredToken();
+            setStatus('unauthenticated');
+          }
+        })
+        .finally(() => {
+          params.delete('sso');
+          const rest = params.toString();
+          window.history.replaceState({}, '', window.location.pathname + (rest ? `?${rest}` : ''));
+        });
+      return;
+    }
+
     const stored = getStoredToken();
     if (!stored) {
       setStatus('unauthenticated');
