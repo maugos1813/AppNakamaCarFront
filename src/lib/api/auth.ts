@@ -13,6 +13,15 @@ export function login(email: string, password: string) {
   });
 }
 
+// Cambia un ticket de single sign-on de OneSystec por una sesión real acá, sin
+// password — ver AuthContext.tsx.
+export function ssoLogin(ticket: string) {
+  return apiRequest<LoginResponse>('/auth/sso', {
+    method: 'POST',
+    body: JSON.stringify({ ticket }),
+  });
+}
+
 export function getMe(token: string) {
   return apiRequest<StaffUser>('/auth/me', { token });
 }
